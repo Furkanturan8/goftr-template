@@ -1,0 +1,29 @@
+app:
+  name: "goftr-v1"
+  version: "1.0.0"
+  port: 3005
+  env: "development"
+  shutdown_timeout: 10 # saniye cinsinden
+  log_dir: "./logs"
+
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "your_password"
+  name: "goftr"
+  sslmode: "disable"
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 10
+  min_idle_conns: 5
+  max_retries: 3
+  retry_interval: 100 # milisaniye cinsinden
+
+jwt:
+  secret: "your_jwt_secret_key"
+  expiration: 24 # saat cinsinden 
