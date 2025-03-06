@@ -70,6 +70,7 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 	return c.JSON(resp)
 }
 
+// todo: logout yapılmıyor 500 hatası veriyor
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	token := c.Get("Authorization")
 	if token == "" {

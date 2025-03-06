@@ -13,11 +13,13 @@ import (
 
 type AuthService struct {
 	userRepo *repository.UserRepository
+	authRepo *repository.AuthRepository
 }
 
-func NewAuthService(userRepo *repository.UserRepository) *AuthService {
+func NewAuthService(userRepo *repository.UserRepository, authRepo *repository.AuthRepository) *AuthService {
 	return &AuthService{
 		userRepo: userRepo,
+		authRepo: authRepo,
 	}
 }
 
@@ -65,9 +67,37 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.To
 		return nil, response.ErrUnauthorized
 	}
 
-	// Token oluştur
-	token, err := jwt.Generate(user)
+	// Access token oluştur
+	accessToken, err := jwt.Generate(user)
 	if err != nil {
+		return nil, response.ErrInternal
+	}
+
+	// Refresh token oluştur (örnek olarak rastgele bir string)
+	refreshToken := "refresh_" + accessToken // Gerçek uygulamada güvenli bir yöntem kullanılmalı
+
+	// Token kaydını oluştur
+	token := &model.Token{
+		UserID:       user.ID,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresAt:    time.Now().Add(time.Hour * 24), // 24 saat
+	}
+
+	if err := s.authRepo.CreateToken(ctx, token); err != nil {
+		return nil, response.ErrInternal
+	}
+
+	// Oturum kaydı oluştur
+	session := &model.Session{
+		UserID:       user.ID,
+		RefreshToken: refreshToken,
+		UserAgent:    "web",                               // Gerçek uygulamada request'ten alınmalı
+		ClientIP:     "0.0.0.0",                           // Gerçek uygulamada request'ten alınmalı
+		ExpiresAt:    time.Now().Add(time.Hour * 24 * 30), // 30 gün
+	}
+
+	if err := s.authRepo.CreateSession(ctx, session); err != nil {
 		return nil, response.ErrInternal
 	}
 
@@ -78,10 +108,10 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.To
 	}
 
 	return &dto.TokenResponse{
-		AccessToken:  token,
+		AccessToken:  accessToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int64(time.Hour * 24), // 24 saat
-		RefreshToken: "",                    // Refresh token implementation
+		RefreshToken: refreshToken,
 	}, nil
 }
 
@@ -103,21 +133,56 @@ func (s *AuthService) RefreshToken(ctx context.Context, token string) (*dto.Toke
 	}
 
 	// Yeni token oluştur
-	newToken, err := jwt.Generate(user)
+	newAccessToken, err := jwt.Generate(user)
 	if err != nil {
 		return nil, response.ErrInternal
 	}
 
+	// Yeni refresh token oluştur
+	newRefreshToken := "refresh_" + newAccessToken // Gerçek uygulamada güvenli bir yöntem kullanılmalı
+
+	// Eski token'ı geçersiz kıl
+	oldToken, err := s.authRepo.GetTokenByAccessToken(ctx, token)
+	if err == nil {
+		_ = s.authRepo.RevokeToken(ctx, oldToken.ID)
+	}
+
+	// Yeni token kaydı oluştur
+	newToken := &model.Token{
+		UserID:       user.ID,
+		AccessToken:  newAccessToken,
+		RefreshToken: newRefreshToken,
+		ExpiresAt:    time.Now().Add(time.Hour * 24), // 24 saat
+	}
+
+	if err := s.authRepo.CreateToken(ctx, newToken); err != nil {
+		return nil, response.ErrInternal
+	}
+
 	return &dto.TokenResponse{
-		AccessToken:  newToken,
+		AccessToken:  newAccessToken,
 		TokenType:    "Bearer",
 		ExpiresIn:    int64(time.Hour * 24), // 24 saat
-		RefreshToken: "",                    // Refresh token implementation
+		RefreshToken: newRefreshToken,
 	}, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, token string) error {
-	// Token'ı blacklist'e ekle veya Redis'te invalidate et
-	// Bu örnekte sadece başarılı dönüyoruz
+	// Token'ı blacklist'e ekle
+	blacklist := &model.TokenBlacklist{
+		Token:     token,
+		ExpiresAt: time.Now().Add(time.Hour * 24), // 24 saat boyunca blacklist'te tut
+	}
+
+	if err := s.authRepo.AddToBlacklist(ctx, blacklist); err != nil {
+		return response.ErrInternal
+	}
+
+	// Token kaydını bul ve geçersiz kıl
+	tokenRecord, err := s.authRepo.GetTokenByAccessToken(ctx, token)
+	if err == nil {
+		_ = s.authRepo.RevokeToken(ctx, tokenRecord.ID)
+	}
+
 	return nil
 }

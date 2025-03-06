@@ -17,11 +17,7 @@ type Router struct {
 	// Diğer handler'lar buraya eklenecek
 }
 
-func NewRouter(
-	authHandler *handler.AuthHandler,
-	userHandler *handler.UserHandler,
-	// Diğer handler'lar buraya eklenecek
-) *Router {
+func NewRouter(authHandler *handler.AuthHandler, userHandler *handler.UserHandler) *Router {
 	return &Router{
 		app:         fiber.New(),
 		authHandler: authHandler,
@@ -46,20 +42,22 @@ func (r *Router) SetupRoutes() {
 	auth.Post("/refresh", r.authHandler.RefreshToken)
 	auth.Post("/logout", middleware.AuthMiddleware(), r.authHandler.Logout)
 
-	// User routes
+	// User routes - Base group
 	users := v1.Group("/users")
-	users.Use(middleware.AuthMiddleware()) // Tüm user route'ları için auth gerekli
 
 	// Normal user routes (profil yönetimi)
-	users.Get("/me", r.userHandler.GetProfile)
-	users.Put("/me", r.userHandler.UpdateProfile)
+	userProfile := users.Group("/me")
+	userProfile.Use(middleware.AuthMiddleware()) // Sadece authentication gerekli
+	userProfile.Get("/", r.userHandler.GetProfile)
+	userProfile.Put("/", r.userHandler.UpdateProfile)
 
 	// Admin only routes
-	users.Use(middleware.AdminOnly()) // Bundan sonraki tüm route'lar için admin yetkisi gerekli
-	users.Get("/", r.userHandler.List)
-	users.Get("/:id", r.userHandler.GetByID)
-	users.Put("/:id", r.userHandler.Update)
-	users.Delete("/:id", r.userHandler.Delete)
+	adminUsers := users.Group("/")
+	adminUsers.Use(middleware.AuthMiddleware(), middleware.AdminOnly()) // Admin yetkisi gerekli
+	adminUsers.Get("/", r.userHandler.List)
+	adminUsers.Get("/:id", r.userHandler.GetByID)
+	adminUsers.Put("/:id", r.userHandler.Update)
+	adminUsers.Delete("/:id", r.userHandler.Delete)
 
 	// Diğer route grupları buraya eklenecek
 }

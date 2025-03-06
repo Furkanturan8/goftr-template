@@ -29,12 +29,6 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 		return fmt.Errorf("veritabanı insert hatası: %v", err)
 	}
 
-	// Cache'e kaydet
-	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
-	if err := cache.Set(ctx, cacheKey, user, userCacheDuration); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return nil
-	}
 	return nil
 }
 
@@ -45,6 +39,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id int64) (*model.User, er
 	var user model.User
 	err := cache.Get(ctx, cacheKey, &user)
 	if err == nil {
+		fmt.Printf("Kullanıcı (ID: %d) cache'den alındı\n", id)
 		return &user, nil
 	}
 
@@ -55,8 +50,10 @@ func (r *UserRepository) GetByID(ctx context.Context, id int64) (*model.User, er
 		return nil, err
 	}
 
+	fmt.Printf("Kullanıcı (ID: %d) veritabanından alındı\n", id)
+
 	// Cache'e kaydet
-	if err := cache.Set(ctx, cacheKey, &user, userCacheDuration); err != nil {
+	if err = cache.Set(ctx, cacheKey, &user, userCacheDuration); err != nil {
 		// Cache hatası loglansın ama işlemi engellemeyecek
 		return &user, nil
 	}
@@ -71,13 +68,6 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 		return nil, err
 	}
 
-	// Cache'e kaydet
-	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
-	if err := cache.Set(ctx, cacheKey, &user, userCacheDuration); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return &user, nil
-	}
-
 	return &user, nil
 }
 
@@ -87,14 +77,6 @@ func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	if err != nil {
 		return err
 	}
-
-	// Cache'i güncelle
-	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
-	if err := cache.Set(ctx, cacheKey, user, userCacheDuration); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return nil
-	}
-
 	return nil
 }
 
@@ -106,7 +88,7 @@ func (r *UserRepository) Delete(ctx context.Context, id int64) error {
 
 	// Cache'den sil
 	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, id)
-	if err := cache.Delete(ctx, cacheKey); err != nil {
+	if err = cache.Delete(ctx, cacheKey); err != nil {
 		// Cache hatası loglansın ama işlemi engellemeyecek
 		return nil
 	}
@@ -122,24 +104,30 @@ func (r *UserRepository) UpdateLastLogin(ctx context.Context, id int64) error {
 		WherePK().
 		Exec(ctx)
 
-	if err != nil {
-		return err
-	}
-
-	// Cache'i güncelle
-	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, id)
-	if err := cache.Delete(ctx, cacheKey); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return nil
-	}
-
-	return nil
+	return err
 }
 
 func (r *UserRepository) List(ctx context.Context) ([]model.User, error) {
+	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix)
+
+	// Önce cache'den kontrol et
 	var users []model.User
-	err := r.db.NewSelect().Model(&users).Scan(ctx)
-	return users, err
+	err := cache.Get(ctx, cacheKey, &users)
+	if err == nil {
+		fmt.Printf("Kullanıcılar cache'den alındı\n")
+		return users, nil
+	}
+
+	err = r.db.NewSelect().Model(&users).Scan(ctx)
+
+	fmt.Printf("Kullanıcılar veritabanından alındı\n")
+
+	// Cache'e kaydet
+	if err = cache.Set(ctx, cacheKey, &users, userCacheDuration); err != nil {
+		// Cache hatası loglansın ama işlemi engellemeyecek
+		return users, nil
+	}
+	return users, nil
 }
 
 func (r *UserRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {

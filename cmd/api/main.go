@@ -32,7 +32,7 @@ func main() {
 	}
 
 	// Logger'ı başlat
-	if err := logger.Init(cfg.App.LogDir); err != nil {
+	if err = logger.Init(cfg.App.LogDir); err != nil {
 		log.Printf("Logger başlatma hatası: %v", err)
 		os.Exit(1)
 	}
@@ -52,7 +52,7 @@ func main() {
 	defer db.Close()
 
 	// Veritabanı bağlantısını kontrol et
-	if err := db.Ping(); err != nil {
+	if err = db.Ping(); err != nil {
 		logger.Error("Veritabanı bağlantı hatası: %v", err)
 		os.Exit(1)
 	}
@@ -60,9 +60,10 @@ func main() {
 
 	// Repository'ler
 	userRepo := repository.NewUserRepository(db)
+	authRepo := repository.NewAuthRepository(db)
 
 	// Service'ler
-	authService := service.NewAuthService(userRepo)
+	authService := service.NewAuthService(userRepo, authRepo)
 	userService := service.NewUserService(userRepo)
 
 	// Handler'lar
@@ -82,7 +83,7 @@ func main() {
 	go func() {
 		addr := fmt.Sprintf(":%d", cfg.App.Port)
 		logger.Info("Sunucu %s portunda başlatılıyor...", addr)
-		if err := r.GetApp().Listen(addr); err != nil {
+		if err = r.GetApp().Listen(addr); err != nil {
 			logger.Error("Sunucu hatası: %v", err)
 		}
 		close(serverShutdown)
@@ -97,12 +98,12 @@ func main() {
 	defer cancel()
 
 	// Sunucuyu durdur
-	if err := r.GetApp().ShutdownWithContext(ctx); err != nil {
+	if err = r.GetApp().ShutdownWithContext(ctx); err != nil {
 		logger.Error("Sunucu kapatma hatası: %v", err)
 	}
 
 	// Veritabanı bağlantısını kapat
-	if err := db.Close(); err != nil {
+	if err = db.Close(); err != nil {
 		logger.Error("Veritabanı bağlantısı kapatma hatası: %v", err)
 	}
 
