@@ -23,6 +23,8 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 │   ├── cache/           # Redis cache işlemleri
 │   ├── jwt/            # JWT işlemleri
 │   └── logger/         # Loglama işlemleri
+│   └── query/          # Query işlemleri
+│   └── response/       # Response işlemleri
 ├── migrations/         # Veritabanı migrasyon dosyaları
 ├── api/               # API dökümantasyonu
 ├── tests/            # Test dosyaları
