@@ -18,16 +18,18 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 │   ├── handler/           # HTTP işleyicileri
 │   ├── dto/              # Veri transfer nesneleri
 │   ├── middleware/       # HTTP ara yazılımları
-│   └── util/            # Yardımcı fonksiyonlar
+│   └── router/          # Router yapılandırmaları
 ├── pkg/
 │   ├── cache/           # Redis cache işlemleri
+│   ├── errorx/         # Hata yönetimi
 │   ├── jwt/            # JWT işlemleri
-│   └── logger/         # Loglama işlemleri
-│   └── query/          # Query işlemleri
+│   ├── logger/         # Loglama işlemleri
+│   ├── query/          # Query işlemleri
 │   └── response/       # Response işlemleri
 ├── migrations/         # Veritabanı migrasyon dosyaları
 ├── api/               # API dökümantasyonu
 ├── tests/            # Test dosyaları
+├── logs/             # Log dosyaları
 ├── Dockerfile        # Docker yapılandırması
 ├── docker-compose.yml # Docker servisleri
 └── go.mod            # Go modül tanımlamaları
@@ -135,13 +137,13 @@ type UserRepository struct {
 
 func (r *UserRepository) GetByID(ctx context.Context, id int64) (*model.User, error) {
     cacheKey := fmt.Sprintf("user:%d", id)
-    
+
     // Önce cache'den kontrol
     var user model.User
     if err := cache.Get(ctx, cacheKey, &user); err == nil {
         return &user, nil
     }
-    
+
     // DB'den al ve cache'e kaydet
     // ...
 }
@@ -237,11 +239,13 @@ CREATE TABLE users (
 ## 8. Güvenlik ve Performans
 
 ### 8.1. Redis Cache Stratejileri
+
 - Sık erişilen veriler için cache kullanımı
 - Cache süresinin doğru belirlenmesi
 - Cache invalidation stratejileri
 
 ### 8.2. Güvenlik Önlemleri
+
 - JWT token kullanımı
 - Password hashing
 - Rate limiting
@@ -257,6 +261,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ### 9.2. Monitoring (Henüz eklenmedi)
+
 - Prometheus metrics
 - Grafana dashboard
 - Log aggregation
