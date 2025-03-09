@@ -119,6 +119,9 @@ func (r *UserRepository) List(ctx context.Context) ([]model.User, error) {
 	}
 
 	err = r.db.NewSelect().Model(&users).Scan(ctx)
+ if err != nil {
+  return nil, err
+ }
 
 	fmt.Printf("Kullanıcılar veritabanından alındı\n")
 
