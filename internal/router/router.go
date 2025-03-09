@@ -40,6 +40,8 @@ func (r *Router) SetupRoutes() {
 	auth.Post("/register", r.authHandler.Register)
 	auth.Post("/login", r.authHandler.Login)
 	auth.Post("/refresh", r.authHandler.RefreshToken)
+	auth.Post("/forgot-password", r.authHandler.ForgotPassword)
+	auth.Post("/reset-password", r.authHandler.ResetPassword)
 	auth.Post("/logout", middleware.AuthMiddleware(), r.authHandler.Logout)
 
 	// User routes - Base group

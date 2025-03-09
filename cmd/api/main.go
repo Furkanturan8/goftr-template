@@ -63,7 +63,7 @@ func main() {
 	authRepo := repository.NewAuthRepository(db)
 
 	// Service'ler
-	authService := service.NewAuthService(userRepo, authRepo)
+	authService := service.NewAuthService(authRepo, userRepo)
 	userService := service.NewUserService(userRepo)
 
 	// Handler'lar

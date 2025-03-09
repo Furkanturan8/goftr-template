@@ -4,7 +4,7 @@ import (
 	"context"
 	"goftr-v1/internal/dto"
 	"goftr-v1/internal/repository"
-	"goftr-v1/pkg/response"
+	"goftr-v1/pkg/errorx"
 )
 
 type UserService struct {
@@ -20,7 +20,7 @@ func NewUserService(userRepo *repository.UserRepository) *UserService {
 func (s *UserService) List(ctx context.Context) (*dto.UsersResponse, error) {
 	users, err := s.userRepo.List(ctx)
 	if err != nil {
-		return nil, response.ErrDatabaseOperation
+		return nil, errorx.ErrDatabaseOperation
 	}
 
 	userResponses := make([]dto.UserResponse, len(users))
@@ -44,7 +44,7 @@ func (s *UserService) List(ctx context.Context) (*dto.UsersResponse, error) {
 func (s *UserService) GetByID(ctx context.Context, id int64) (*dto.UserResponse, error) {
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, response.ErrNotFound
+		return nil, errorx.ErrNotFound
 	}
 
 	return &dto.UserResponse{
@@ -60,7 +60,7 @@ func (s *UserService) GetByID(ctx context.Context, id int64) (*dto.UserResponse,
 func (s *UserService) Update(ctx context.Context, id int64, req *dto.UpdateUserRequest) error {
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
-		return response.ErrNotFound
+		return errorx.ErrNotFound
 	}
 
 	if req.FirstName != "" {
@@ -74,17 +74,17 @@ func (s *UserService) Update(ctx context.Context, id int64, req *dto.UpdateUserR
 		if req.Email != user.Email {
 			exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
 			if err != nil {
-				return response.ErrDatabaseOperation
+				return errorx.ErrDatabaseOperation
 			}
 			if exists {
-				return response.ErrDuplicate
+				return errorx.ErrDuplicate
 			}
 		}
 		user.Email = req.Email
 	}
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return response.ErrDatabaseOperation
+		return errorx.ErrDatabaseOperation
 	}
 
 	return nil
@@ -92,7 +92,7 @@ func (s *UserService) Update(ctx context.Context, id int64, req *dto.UpdateUserR
 
 func (s *UserService) Delete(ctx context.Context, id int64) error {
 	if err := s.userRepo.Delete(ctx, id); err != nil {
-		return response.ErrDatabaseOperation
+		return errorx.ErrDatabaseOperation
 	}
 	return nil
 }

@@ -16,33 +16,22 @@ func NewAuthRepository(db *bun.DB) *AuthRepository {
 	return &AuthRepository{db: db}
 }
 
-// CreateToken yeni bir token kaydı oluşturur
-func (r *AuthRepository) CreateToken(ctx context.Context, token *model.Token) error {
+// Token işlemleri
+func (r *AuthRepository) SaveToken(ctx context.Context, token *model.Token) error {
 	_, err := r.db.NewInsert().Model(token).Exec(ctx)
 	return err
 }
 
-// GetTokenByAccessToken access token ile token kaydını bulur
-func (r *AuthRepository) GetTokenByAccessToken(ctx context.Context, accessToken string) (*model.Token, error) {
+func (r *AuthRepository) GetTokenByRefresh(ctx context.Context, refreshToken string) (*model.Token, error) {
 	token := new(model.Token)
 	err := r.db.NewSelect().
 		Model(token).
-		Where("access_token = ?", accessToken).
+		Where("refresh_token = ? AND revoked_at IS NULL", refreshToken).
+		Relation("User").
 		Scan(ctx)
 	return token, err
 }
 
-// GetTokenByRefreshToken refresh token ile token kaydını bulur
-func (r *AuthRepository) GetTokenByRefreshToken(ctx context.Context, refreshToken string) (*model.Token, error) {
-	token := new(model.Token)
-	err := r.db.NewSelect().
-		Model(token).
-		Where("refresh_token = ?", refreshToken).
-		Scan(ctx)
-	return token, err
-}
-
-// RevokeToken bir token'ı geçersiz kılar
 func (r *AuthRepository) RevokeToken(ctx context.Context, tokenID int64) error {
 	_, err := r.db.NewUpdate().
 		Model((*model.Token)(nil)).
@@ -52,39 +41,62 @@ func (r *AuthRepository) RevokeToken(ctx context.Context, tokenID int64) error {
 	return err
 }
 
-// CreateSession yeni bir oturum kaydı oluşturur
+// Session işlemleri
 func (r *AuthRepository) CreateSession(ctx context.Context, session *model.Session) error {
 	_, err := r.db.NewInsert().Model(session).Exec(ctx)
 	return err
 }
 
-// GetSessionByRefreshToken refresh token ile oturum kaydını bulur
 func (r *AuthRepository) GetSessionByRefreshToken(ctx context.Context, refreshToken string) (*model.Session, error) {
 	session := new(model.Session)
 	err := r.db.NewSelect().
 		Model(session).
-		Where("refresh_token = ?", refreshToken).
+		Where("refresh_token = ? AND is_blocked = false", refreshToken).
+		Relation("User").
 		Scan(ctx)
 	return session, err
 }
 
-// BlockSession bir oturumu bloklar
-func (r *AuthRepository) BlockSession(ctx context.Context, sessionID int64) error {
+func (r *AuthRepository) UpdateSession(ctx context.Context, session *model.Session) error {
 	_, err := r.db.NewUpdate().
+		Model(session).
+		WherePK().
+		Exec(ctx)
+	return err
+}
+
+func (r *AuthRepository) DeleteSession(ctx context.Context, sessionID int64) error {
+	_, err := r.db.NewDelete().
 		Model((*model.Session)(nil)).
-		Set("is_blocked = ?", true).
 		Where("id = ?", sessionID).
 		Exec(ctx)
 	return err
 }
 
-// AddToBlacklist bir token'ı kara listeye ekler
+func (r *AuthRepository) BlockSession(ctx context.Context, sessionID int64) error {
+	_, err := r.db.NewUpdate().
+		Model((*model.Session)(nil)).
+		Set("is_blocked = true").
+		Where("id = ?", sessionID).
+		Exec(ctx)
+	return err
+}
+
+func (r *AuthRepository) GetSessionsByUserID(ctx context.Context, userID int64) ([]*model.Session, error) {
+	var sessions []*model.Session
+	err := r.db.NewSelect().
+		Model(&sessions).
+		Where("user_id = ? AND is_blocked = false", userID).
+		Scan(ctx)
+	return sessions, err
+}
+
+// Token Blacklist işlemleri
 func (r *AuthRepository) AddToBlacklist(ctx context.Context, blacklist *model.TokenBlacklist) error {
 	_, err := r.db.NewInsert().Model(blacklist).Exec(ctx)
 	return err
 }
 
-// IsTokenBlacklisted bir token'ın kara listede olup olmadığını kontrol eder
 func (r *AuthRepository) IsTokenBlacklisted(ctx context.Context, token string) (bool, error) {
 	exists, err := r.db.NewSelect().
 		Model((*model.TokenBlacklist)(nil)).
@@ -93,11 +105,59 @@ func (r *AuthRepository) IsTokenBlacklisted(ctx context.Context, token string) (
 	return exists, err
 }
 
-// CleanupExpiredTokens süresi dolmuş token kayıtlarını temizler
+// Temizlik işlemleri
 func (r *AuthRepository) CleanupExpiredTokens(ctx context.Context) error {
 	_, err := r.db.NewDelete().
 		Model((*model.TokenBlacklist)(nil)).
 		Where("expires_at < ?", time.Now()).
+		Exec(ctx)
+	return err
+}
+
+func (r *AuthRepository) CleanupExpiredSessions(ctx context.Context) error {
+	_, err := r.db.NewDelete().
+		Model((*model.Session)(nil)).
+		Where("expires_at < ?", time.Now()).
+		Exec(ctx)
+	return err
+}
+
+// User işlemleri
+func (r *AuthRepository) CreateUser(ctx context.Context, user *model.User) error {
+	_, err := r.db.NewInsert().Model(user).Exec(ctx)
+	return err
+}
+
+func (r *AuthRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
+	exists, err := r.db.NewSelect().
+		Model((*model.User)(nil)).
+		Where("email = ?", email).
+		Exists(ctx)
+	return exists, err
+}
+
+func (r *AuthRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+	user := new(model.User)
+	err := r.db.NewSelect().
+		Model(user).
+		Where("email = ?", email).
+		Scan(ctx)
+	return user, err
+}
+
+func (r *AuthRepository) GetByID(ctx context.Context, id int64) (*model.User, error) {
+	user := new(model.User)
+	err := r.db.NewSelect().
+		Model(user).
+		Where("id = ?", id).
+		Scan(ctx)
+	return user, err
+}
+
+func (r *AuthRepository) Update(ctx context.Context, user *model.User) error {
+	_, err := r.db.NewUpdate().
+		Model(user).
+		WherePK().
 		Exec(ctx)
 	return err
 }

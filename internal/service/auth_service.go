@@ -2,35 +2,34 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"goftr-v1/internal/dto"
 	"goftr-v1/internal/model"
 	"goftr-v1/internal/repository"
+	"goftr-v1/pkg/errorx"
 	"goftr-v1/pkg/jwt"
-	"goftr-v1/pkg/response"
 	"time"
 )
 
 type AuthService struct {
-	userRepo *repository.UserRepository
 	authRepo *repository.AuthRepository
+	userRepo *repository.UserRepository
 }
 
-func NewAuthService(userRepo *repository.UserRepository, authRepo *repository.AuthRepository) *AuthService {
+func NewAuthService(authRepo *repository.AuthRepository, userRepo *repository.UserRepository) *AuthService {
 	return &AuthService{
-		userRepo: userRepo,
 		authRepo: authRepo,
+		userRepo: userRepo,
 	}
 }
 
-func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) error {
+func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*model.User, error) {
 	// Email kontrolü
 	exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
 	if err != nil {
-		return fmt.Errorf("email kontrol hatası: %v", err)
+		return nil, errorx.ErrDatabaseOperation
 	}
 	if exists {
-		return fmt.Errorf("bu email adresi zaten kullanımda: %s", req.Email)
+		return nil, errorx.WithDetails(errorx.ErrInvalidRequest, "Email already exists")
 	}
 
 	// Yeni kullanıcı oluştur
@@ -38,150 +37,247 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) er
 		Email:     req.Email,
 		FirstName: req.FirstName,
 		LastName:  req.LastName,
-		Role:      model.UserRole,
-		Status:    model.StatusActive,
+		Role:      model.UserRole,     // Varsayılan rol
+		Status:    model.StatusActive, // Varsayılan durum
 	}
 
 	// Şifreyi hashle
 	if err := user.SetPassword(req.Password); err != nil {
-		return fmt.Errorf("şifre hashleme hatası: %v", err)
+		return nil, errorx.ErrPasswordHash
 	}
 
 	// Kullanıcıyı kaydet
-	if err := s.userRepo.Create(ctx, user); err != nil {
-		return fmt.Errorf("kullanıcı oluşturma hatası: %v", err)
+	if err = s.userRepo.Create(ctx, user); err != nil {
+		return nil, errorx.ErrDatabaseOperation
 	}
 
-	return nil
+	return user, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.TokenResponse, error) {
-	// Kullanıcıyı bul
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, response.ErrUnauthorized
+		return nil, jwt.ErrInvalidCredentials
 	}
 
-	// Şifreyi kontrol et
 	if !user.CheckPassword(req.Password) {
-		return nil, response.ErrUnauthorized
+		return nil, jwt.ErrInvalidCredentials
+	}
+
+	if user.Status != model.StatusActive {
+		return nil, jwt.ErrAccountInactive
 	}
 
 	// Access token oluştur
 	accessToken, err := jwt.Generate(user)
 	if err != nil {
-		return nil, response.ErrInternal
+		return nil, jwt.ErrTokenGeneration
 	}
 
-	// Refresh token oluştur (örnek olarak rastgele bir string)
-	refreshToken := "refresh_" + accessToken // Gerçek uygulamada güvenli bir yöntem kullanılmalı
+	// Refresh token oluştur
+	refreshToken, err := jwt.GenerateRefreshToken(user.ID)
+	if err != nil {
+		return nil, jwt.ErrTokenGeneration
+	}
 
 	// Token kaydını oluştur
 	token := &model.Token{
 		UserID:       user.ID,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresAt:    time.Now().Add(time.Hour * 24), // 24 saat
+		ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour), // 24 saat
 	}
 
-	if err := s.authRepo.CreateToken(ctx, token); err != nil {
-		return nil, response.ErrInternal
+	if err = s.authRepo.SaveToken(ctx, token); err != nil {
+		return nil, errorx.ErrDatabaseOperation
 	}
 
-	// Oturum kaydı oluştur
+	// Session oluştur
 	session := &model.Session{
 		UserID:       user.ID,
 		RefreshToken: refreshToken,
-		UserAgent:    "web",                               // Gerçek uygulamada request'ten alınmalı
-		ClientIP:     "0.0.0.0",                           // Gerçek uygulamada request'ten alınmalı
-		ExpiresAt:    time.Now().Add(time.Hour * 24 * 30), // 30 gün
+		UserAgent:    ctx.Value("user_agent").(string),
+		ClientIP:     ctx.Value("client_ip").(string),
+		ExpiresAt:    time.Now().Add(time.Duration(168) * time.Hour), // 7 gün
 	}
 
 	if err := s.authRepo.CreateSession(ctx, session); err != nil {
-		return nil, response.ErrInternal
-	}
-
-	// Son giriş zamanını güncelle
-	if err := s.userRepo.UpdateLastLogin(ctx, user.ID); err != nil {
-		// Log error but don't fail the login
-		// logger.Error("Failed to update last login: %v", err)
+		return nil, errorx.ErrDatabaseOperation
 	}
 
 	return &dto.TokenResponse{
 		AccessToken:  accessToken,
-		TokenType:    "Bearer",
-		ExpiresIn:    int64(time.Hour * 24), // 24 saat
 		RefreshToken: refreshToken,
+		ExpiresIn:    24 * 60 * 60, // 24 saat (saniye cinsinden)
 	}, nil
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, token string) (*dto.TokenResponse, error) {
-	// Token'ı doğrula
-	claims, err := jwt.Validate(token)
+func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*dto.TokenResponse, error) {
+	// Refresh token'ı doğrula
+	claims, err := jwt.ValidateRefreshToken(refreshToken)
 	if err != nil {
-		return nil, response.ErrUnauthorized
+		return nil, jwt.ErrInvalidToken
 	}
 
-	// Kullanıcıyı kontrol et
+	// Session'ı kontrol et
+	session, err := s.authRepo.GetSessionByRefreshToken(ctx, refreshToken)
+	if err != nil || !session.IsValid() {
+		return nil, jwt.ErrInvalidSession
+	}
+
+	// Kullanıcıyı getir
 	user, err := s.userRepo.GetByID(ctx, claims.UserID)
 	if err != nil {
-		return nil, response.ErrNotFound
+		return nil, errorx.ErrNotFound
 	}
 
 	if user.Status != model.StatusActive {
-		return nil, response.ErrForbidden
+		return nil, jwt.ErrAccountInactive
 	}
 
-	// Yeni token oluştur
-	newAccessToken, err := jwt.Generate(user)
+	// Yeni access token oluştur
+	accessToken, err := jwt.Generate(user)
 	if err != nil {
-		return nil, response.ErrInternal
+		return nil, jwt.ErrTokenGeneration
 	}
 
 	// Yeni refresh token oluştur
-	newRefreshToken := "refresh_" + newAccessToken // Gerçek uygulamada güvenli bir yöntem kullanılmalı
-
-	// Eski token'ı geçersiz kıl
-	oldToken, err := s.authRepo.GetTokenByAccessToken(ctx, token)
-	if err == nil {
-		_ = s.authRepo.RevokeToken(ctx, oldToken.ID)
+	newRefreshToken, err := jwt.GenerateRefreshToken(user.ID)
+	if err != nil {
+		return nil, jwt.ErrTokenGeneration
 	}
 
-	// Yeni token kaydı oluştur
-	newToken := &model.Token{
+	// Token kaydını güncelle
+	token := &model.Token{
 		UserID:       user.ID,
-		AccessToken:  newAccessToken,
+		AccessToken:  accessToken,
 		RefreshToken: newRefreshToken,
-		ExpiresAt:    time.Now().Add(time.Hour * 24), // 24 saat
+		ExpiresAt:    time.Now().Add(time.Duration(24) * time.Hour),
 	}
 
-	if err := s.authRepo.CreateToken(ctx, newToken); err != nil {
-		return nil, response.ErrInternal
+	if err = s.authRepo.SaveToken(ctx, token); err != nil {
+		return nil, errorx.ErrDatabaseOperation
+	}
+
+	// Session'ı güncelle
+	session.RefreshToken = newRefreshToken
+	session.ExpiresAt = time.Now().Add(time.Duration(168) * time.Hour)
+
+	if err = s.authRepo.UpdateSession(ctx, session); err != nil {
+		return nil, errorx.ErrDatabaseOperation
 	}
 
 	return &dto.TokenResponse{
-		AccessToken:  newAccessToken,
-		TokenType:    "Bearer",
-		ExpiresIn:    int64(time.Hour * 24), // 24 saat
+		AccessToken:  accessToken,
 		RefreshToken: newRefreshToken,
+		ExpiresIn:    24 * 60 * 60,
 	}, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, token string) error {
+	// Token'ı doğrula
+	_, err := jwt.Validate(token)
+	if err != nil {
+		return jwt.ErrInvalidToken
+	}
+
+	// Session'ı bul ve sil
+	session, err := s.authRepo.GetSessionByRefreshToken(ctx, token)
+	if err == nil && session != nil {
+		if err = s.authRepo.DeleteSession(ctx, session.ID); err != nil {
+			return errorx.ErrDatabaseOperation
+		}
+	}
+
 	// Token'ı blacklist'e ekle
 	blacklist := &model.TokenBlacklist{
 		Token:     token,
-		ExpiresAt: time.Now().Add(time.Hour * 24), // 24 saat boyunca blacklist'te tut
+		ExpiresAt: time.Now().Add(time.Duration(24) * time.Hour),
 	}
 
-	if err := s.authRepo.AddToBlacklist(ctx, blacklist); err != nil {
-		return response.ErrInternal
+	if err = s.authRepo.AddToBlacklist(ctx, blacklist); err != nil {
+		return errorx.ErrDatabaseOperation
 	}
 
-	// Token kaydını bul ve geçersiz kıl
-	tokenRecord, err := s.authRepo.GetTokenByAccessToken(ctx, token)
+	return nil
+}
+
+func (s *AuthService) ForgotPassword(ctx context.Context, email string) (string, error) {
+	user, err := s.userRepo.GetByEmail(ctx, email)
+	if err != nil {
+		return "", errorx.ErrNotFound
+	}
+
+	// Şifre sıfırlama token'ı oluştur
+	resetToken, err := jwt.GeneratePasswordResetToken(user)
+	if err != nil {
+		return "", jwt.ErrTokenGeneration
+	}
+
+	return resetToken, nil
+}
+
+func (s *AuthService) ResetPassword(ctx context.Context, token, newPassword string) error {
+	// Token'ı doğrula
+	claims, err := jwt.ValidatePasswordResetToken(token)
+	if err != nil {
+		return jwt.ErrInvalidToken
+	}
+
+	// Kullanıcıyı bul
+	user, err := s.userRepo.GetByID(ctx, claims.UserID)
+	if err != nil {
+		return errorx.ErrNotFound
+	}
+
+	// Şifreyi güncelle
+	if err = user.SetPassword(newPassword); err != nil {
+		return errorx.ErrInternal
+	}
+
+	if err = s.userRepo.Update(ctx, user); err != nil {
+		return errorx.ErrDatabaseOperation
+	}
+
+	// Kullanıcının tüm oturumlarını sonlandır
+	sessions, err := s.authRepo.GetSessionsByUserID(ctx, user.ID)
 	if err == nil {
-		_ = s.authRepo.RevokeToken(ctx, tokenRecord.ID)
+		for _, session := range sessions {
+			s.authRepo.DeleteSession(ctx, session.ID)
+		}
+	}
+
+	return nil
+}
+
+func (s *AuthService) ValidateToken(ctx context.Context, token string) (*jwt.Claims, error) {
+	// Token'ın blacklist'te olup olmadığını kontrol et
+	isBlacklisted, err := s.authRepo.IsTokenBlacklisted(ctx, token)
+	if err != nil {
+		return nil, errorx.ErrDatabaseOperation
+	}
+
+	if isBlacklisted {
+		return nil, jwt.ErrInvalidToken
+	}
+
+	// Token'ı doğrula
+	claims, err := jwt.Validate(token)
+	if err != nil {
+		return nil, jwt.ErrInvalidToken
+	}
+
+	return claims, nil
+}
+
+// Cleanup işlemleri
+func (s *AuthService) CleanupExpiredData(ctx context.Context) error {
+	if err := s.authRepo.CleanupExpiredTokens(ctx); err != nil {
+		return err
+	}
+
+	if err := s.authRepo.CleanupExpiredSessions(ctx); err != nil {
+		return err
 	}
 
 	return nil

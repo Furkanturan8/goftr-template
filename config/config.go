@@ -44,8 +44,10 @@ type RedisConfig struct {
 }
 
 type JWTConfig struct {
-	Secret     string
-	Expiration int // saat cinsinden
+	Secret            string `mapstructure:"jwt_secret"`
+	RefreshSecret     string `mapstructure:"jwt_refresh_secret"`
+	Expiration        int    `mapstructure:"jwt_expiration"`         // Saat cinsinden
+	RefreshExpiration int    `mapstructure:"jwt_refresh_expiration"` // Saat cinsinden
 }
 
 func LoadConfig() (*Config, error) {
