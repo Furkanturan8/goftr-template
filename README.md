@@ -27,7 +27,6 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 │   ├── query/          # Query işlemleri
 │   └── response/       # Response işlemleri
 ├── migrations/         # Veritabanı migrasyon dosyaları
-├── api/               # API dökümantasyonu
 ├── tests/            # Test dosyaları
 ├── logs/             # Log dosyaları
 ├── Dockerfile        # Docker yapılandırması

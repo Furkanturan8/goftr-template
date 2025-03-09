@@ -64,7 +64,10 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	return c.JSON(token)
+	return response.Success(c, dto.LoginResponse{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	})
 }
 
 func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
@@ -82,7 +85,10 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return errorx.ErrUnauthorized
 	}
 
-	return c.JSON(token)
+	return response.Success(c, dto.LoginResponse{
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	})
 }
 
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {

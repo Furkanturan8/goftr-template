@@ -54,7 +54,7 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 	return user, nil
 }
 
-func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.TokenResponse, error) {
+func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, jwt.ErrInvalidCredentials
@@ -101,18 +101,18 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.To
 		ExpiresAt:    time.Now().Add(time.Duration(168) * time.Hour), // 7 gün
 	}
 
-	if err := s.authRepo.CreateSession(ctx, session); err != nil {
+	if err = s.authRepo.CreateSession(ctx, session); err != nil {
 		return nil, errorx.ErrDatabaseOperation
 	}
 
-	return &dto.TokenResponse{
+	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		ExpiresIn:    24 * 60 * 60, // 24 saat (saniye cinsinden)
 	}, nil
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*dto.TokenResponse, error) {
+func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*dto.LoginResponse, error) {
 	// Refresh token'ı doğrula
 	claims, err := jwt.ValidateRefreshToken(refreshToken)
 	if err != nil {
@@ -167,7 +167,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*d
 		return nil, errorx.ErrDatabaseOperation
 	}
 
-	return &dto.TokenResponse{
+	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: newRefreshToken,
 		ExpiresIn:    24 * 60 * 60,
