@@ -87,6 +87,18 @@ var (
 		Code:    StatusConflict,
 		Message: "Email already exists",
 	}
+	ErrCacheNotInitialized = &Error{
+		Code:    StatusInternalServerError,
+		Message: "Cache is not initialized",
+	}
+	ErrKeyNotFound = &Error{
+		Code:    StatusNotFound,
+		Message: "Key not found in cache",
+	}
+	ErrInvalidValue = &Error{
+		Code:    StatusUnprocessableEntity,
+		Message: "Invalid value type",
+	}
 )
 
 // Hata detayı eklemek için yardımcı fonksiyon

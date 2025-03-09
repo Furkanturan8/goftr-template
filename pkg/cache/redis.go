@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"encoding/json"
+	"goftr-v1/pkg/errorx"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -87,42 +88,42 @@ func (c *RedisCache) Expire(ctx context.Context, key string, expiration time.Dur
 // Global fonksiyonlar
 func Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {
 	if defaultCache == nil {
-		return ErrCacheNotInitialized
+		return errorx.ErrCacheNotInitialized
 	}
 	return defaultCache.Set(ctx, key, value, expiration)
 }
 
 func Get(ctx context.Context, key string, dest interface{}) error {
 	if defaultCache == nil {
-		return ErrCacheNotInitialized
+		return errorx.ErrCacheNotInitialized
 	}
 	return defaultCache.Get(ctx, key, dest)
 }
 
 func Delete(ctx context.Context, key string) error {
 	if defaultCache == nil {
-		return ErrCacheNotInitialized
+		return errorx.ErrCacheNotInitialized
 	}
 	return defaultCache.Delete(ctx, key)
 }
 
 func DeleteMany(ctx context.Context, pattern string) error {
 	if defaultCache == nil {
-		return ErrCacheNotInitialized
+		return errorx.ErrCacheNotInitialized
 	}
 	return defaultCache.DeleteMany(ctx, pattern)
 }
 
 func Exists(ctx context.Context, key string) (bool, error) {
 	if defaultCache == nil {
-		return false, ErrCacheNotInitialized
+		return false, errorx.ErrCacheNotInitialized
 	}
 	return defaultCache.Exists(ctx, key)
 }
 
 func Expire(ctx context.Context, key string, expiration time.Duration) error {
 	if defaultCache == nil {
-		return ErrCacheNotInitialized
+		return errorx.ErrCacheNotInitialized
 	}
 	return defaultCache.Expire(ctx, key, expiration)
 }
