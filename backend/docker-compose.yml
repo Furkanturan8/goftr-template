@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  app:
+    build: ..
+    ports:
+      - "3005:3005"
+    environment:
+      - APP_ENV=development
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: goftr_postgres
+    environment:
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: goftr
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/migrations
+    networks:
+      - goftr_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goftr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: goftr_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - goftr_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge
+  goftr_network:
+    driver: bridge 

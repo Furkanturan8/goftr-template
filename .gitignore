@@ -21,7 +21,7 @@ go.work
 .env
 
 # Config files
-./config/config.yaml
+backend/config/config.yaml
 
 # IDE specific files
 .idea/
@@ -30,7 +30,7 @@ go.work
 *.swo
 
 # Log files
-logs/
+backend/logs/
 *.log
 
 # OS generated files
