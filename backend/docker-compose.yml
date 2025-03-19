@@ -11,7 +11,7 @@ services:
       - postgres
       - redis
     volumes:
-      - ./logs:/app/logs
+      - ./backend/logs:/app/logs
     networks:
       - app-network
 
@@ -26,7 +26,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations:/migrations
+      - ./backend/migrations:/migrations
     networks:
       - goftr_network
     healthcheck:

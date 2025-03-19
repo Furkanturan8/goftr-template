@@ -4,7 +4,7 @@ app:
   port: 3005
   env: "development"
   shutdown_timeout: 10 # saniye cinsinden
-  log_dir: "./logs"
+  log_dir: "./backend/logs"
 
 database:
   host: "localhost"
