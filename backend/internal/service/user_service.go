@@ -74,16 +74,16 @@ func (s *UserService) GetByID(ctx context.Context, id int64) (*dto.UserResponseD
 	}, nil
 }
 
-func (s *UserService) Update(ctx context.Context, id int64, req *dto.UserCreateDTO) error {
+func (s *UserService) Update(ctx context.Context, id int64, updatedUser model.User) error {
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return errorx.ErrNotFound
 	}
 
-	if req.Email != "" {
+	if updatedUser.Email != "" {
 		// Email değişiyorsa, yeni email'in başka bir kullanıcıda olmadığından emin ol
-		if req.Email != user.Email {
-			exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
+		if updatedUser.Email != user.Email {
+			exists, err := s.userRepo.ExistsByEmail(ctx, updatedUser.Email)
 			if err != nil {
 				return errorx.ErrDatabaseOperation
 			}
@@ -91,10 +91,7 @@ func (s *UserService) Update(ctx context.Context, id int64, req *dto.UserCreateD
 				return errorx.ErrDuplicate
 			}
 		}
-		user.Email = req.Email
 	}
-
-	updatedUser := dto.UserCreateDTO{}.ToDBModel(*user)
 
 	if err = s.userRepo.Update(ctx, &updatedUser); err != nil {
 		return errorx.ErrDatabaseOperation

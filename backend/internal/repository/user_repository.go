@@ -74,10 +74,23 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*model.U
 
 func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	user.UpdatedAt = time.Now()
-	_, err := r.db.NewUpdate().Model(user).WherePK().Exec(ctx)
+	// Sadece değişen alanları güncelle
+	_, err := r.db.NewUpdate().
+		Model(user).
+		WherePK().
+		Column("email", "first_name", "last_name", "password_hash", "role", "status", "updated_at").
+		Exec(ctx)
 	if err != nil {
 		return err
 	}
+
+	// Cache'den sil
+	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
+	if err = cache.Delete(ctx, cacheKey); err != nil {
+		// Cache hatası loglansın ama işlemi engellemeyecek
+		return nil
+	}
+
 	return nil
 }
 

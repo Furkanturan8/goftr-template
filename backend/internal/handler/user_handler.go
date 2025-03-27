@@ -2,6 +2,7 @@ package handler
 
 import (
 	"goftr-v1/backend/internal/dto"
+	"goftr-v1/backend/internal/model"
 	"goftr-v1/backend/internal/service"
 	"goftr-v1/backend/pkg/errorx"
 	"goftr-v1/backend/pkg/response"
@@ -64,7 +65,10 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}
 
-	if err = h.service.Update(c.Context(), id, &req); err != nil {
+	user := req.ToDBModel(model.User{})
+	user.ID = id
+
+	if err = h.service.Update(c.Context(), id, user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 
@@ -100,7 +104,9 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}
 
-	if err := h.service.Update(c.Context(), userID, &req); err != nil {
+	user := req.ToDBModel(model.User{})
+
+	if err := h.service.Update(c.Context(), userID, user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 

@@ -9,15 +9,17 @@ type UserCreateDTO struct {
 	FirstName string     `json:"first_name" validate:"required,max=100"`
 	LastName  string     `json:"last_name" validate:"required,max=100"`
 	Password  string     `json:"password" validate:"required,min=3,max=100"`
+	Status    string     `json:"status" validate:"default='active',oneof=active,inactive"`
 	Role      model.Role `json:"role" validate:"required"`
 }
 
 func (vm UserCreateDTO) ToDBModel(m model.User) model.User {
 	m.Email = vm.Email
-	m.LastName = vm.FirstName
+	m.FirstName = vm.FirstName
 	m.LastName = vm.LastName
 	_ = m.SetPassword(vm.Password)
 	m.Role = vm.Role
+	m.Status = model.Status(vm.Status)
 
 	return m
 }
@@ -27,7 +29,6 @@ type UserResponseDTO struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	Username  string `json:"username"`
 	Role      string `json:"role"`
 	Status    string `json:"active"`
 }
