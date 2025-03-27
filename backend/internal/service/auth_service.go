@@ -43,7 +43,7 @@ func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 	}
 
 	// Şifreyi hashle
-	if err := user.SetPassword(req.Password); err != nil {
+	if err = user.SetPassword(req.Password); err != nil {
 		return nil, errorx.ErrPasswordHash
 	}
 

@@ -2,11 +2,12 @@ package jwt
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
+	"fmt"
 	"goftr-v1/backend/config"
 	"goftr-v1/backend/internal/model"
-
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 var (
@@ -64,23 +65,36 @@ func Generate(user *model.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(jwtConfig.Secret))
+	tokenString, err := token.SignedString([]byte(jwtConfig.Secret))
+	if err != nil {
+		return "", fmt.Errorf("error signing token: %v", err)
+	}
+
+	return tokenString, nil
 }
 
 func Validate(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		// Algoritma kontrolü
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte(jwtConfig.Secret), nil
 	})
 
 	if err != nil {
-		return nil, err
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, fmt.Errorf("token expired: %v", err)
+		}
+		return nil, fmt.Errorf("error parsing token: %v", err)
 	}
 
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, jwt.ErrSignatureInvalid
 	}
 
-	return nil, jwt.ErrSignatureInvalid
+	return claims, nil
 }
 
 func GenerateRefreshToken(userID int64) (string, error) {
