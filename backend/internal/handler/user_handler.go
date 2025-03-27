@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"goftr-v1/backend/internal/dto"
 	"goftr-v1/backend/internal/service"
 	"goftr-v1/backend/pkg/errorx"
 	"goftr-v1/backend/pkg/response"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type UserHandler struct {
@@ -15,6 +16,19 @@ type UserHandler struct {
 
 func NewUserHandler(s *service.UserService) *UserHandler {
 	return &UserHandler{service: s}
+}
+
+func (h *UserHandler) Create(c *fiber.Ctx) error {
+	var req dto.UserCreateDTO
+	if err := c.BodyParser(&req); err != nil {
+		return errorx.ErrInvalidRequest
+	}
+
+	if err := h.service.Create(c.Context(), &req); err != nil {
+		return errorx.WithDetails(errorx.ErrInternal, err.Error())
+	}
+
+	return response.Success(c, nil, "Kullanıcı başarıyla oluşturuldu")
 }
 
 func (h *UserHandler) List(c *fiber.Ctx) error {
@@ -45,7 +59,7 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	var req dto.UpdateUserRequest
+	var req dto.UserCreateDTO
 	if err = c.BodyParser(&req); err != nil {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}
@@ -81,7 +95,7 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(int64)
 
-	var req dto.UpdateUserRequest
+	var req dto.UserCreateDTO
 	if err := c.BodyParser(&req); err != nil {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}

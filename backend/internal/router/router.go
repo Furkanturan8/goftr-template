@@ -55,6 +55,7 @@ func (r *Router) SetupRoutes() {
 	// Admin only routes
 	adminUsers := users.Group("/")
 	adminUsers.Use(middleware.AuthMiddleware(), middleware.AdminOnly()) // Admin yetkisi gerekli
+	adminUsers.Post("/", r.userHandler.Create)
 	adminUsers.Get("/", r.userHandler.List)
 	adminUsers.Get("/:id", r.userHandler.GetByID)
 	adminUsers.Put("/:id", r.userHandler.Update)

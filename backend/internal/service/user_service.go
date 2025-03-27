@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"goftr-v1/backend/internal/dto"
+	"goftr-v1/backend/internal/model"
 	"goftr-v1/backend/internal/repository"
 	"goftr-v1/backend/pkg/errorx"
 )
@@ -17,15 +18,34 @@ func NewUserService(userRepo *repository.UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) List(ctx context.Context) (*dto.UsersResponse, error) {
+func (s *UserService) Create(ctx context.Context, req *dto.UserCreateDTO) error {
+	// Email kontrolü
+	exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
+	if err != nil {
+		return errorx.ErrDatabaseOperation
+	}
+	if exists {
+		return errorx.ErrDuplicate
+	}
+
+	user := req.ToDBModel(model.User{})
+
+	if err = s.userRepo.Create(ctx, &user); err != nil {
+		return errorx.ErrDatabaseOperation
+	}
+
+	return nil
+}
+
+func (s *UserService) List(ctx context.Context) (*[]dto.UserResponseDTO, error) {
 	users, err := s.userRepo.List(ctx)
 	if err != nil {
 		return nil, errorx.ErrDatabaseOperation
 	}
 
-	userResponses := make([]dto.UserResponse, len(users))
+	userResponses := make([]dto.UserResponseDTO, len(users))
 	for i, user := range users {
-		userResponses[i] = dto.UserResponse{
+		userResponses[i] = dto.UserResponseDTO{
 			ID:        user.ID,
 			Email:     user.Email,
 			FirstName: user.FirstName,
@@ -35,19 +55,16 @@ func (s *UserService) List(ctx context.Context) (*dto.UsersResponse, error) {
 		}
 	}
 
-	return &dto.UsersResponse{
-		Users: userResponses,
-		Total: int64(len(users)),
-	}, nil
+	return &userResponses, nil
 }
 
-func (s *UserService) GetByID(ctx context.Context, id int64) (*dto.UserResponse, error) {
+func (s *UserService) GetByID(ctx context.Context, id int64) (*dto.UserResponseDTO, error) {
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, errorx.ErrNotFound
 	}
 
-	return &dto.UserResponse{
+	return &dto.UserResponseDTO{
 		ID:        user.ID,
 		Email:     user.Email,
 		FirstName: user.FirstName,
@@ -57,18 +74,12 @@ func (s *UserService) GetByID(ctx context.Context, id int64) (*dto.UserResponse,
 	}, nil
 }
 
-func (s *UserService) Update(ctx context.Context, id int64, req *dto.UpdateUserRequest) error {
+func (s *UserService) Update(ctx context.Context, id int64, req *dto.UserCreateDTO) error {
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return errorx.ErrNotFound
 	}
 
-	if req.FirstName != "" {
-		user.FirstName = req.FirstName
-	}
-	if req.LastName != "" {
-		user.LastName = req.LastName
-	}
 	if req.Email != "" {
 		// Email değişiyorsa, yeni email'in başka bir kullanıcıda olmadığından emin ol
 		if req.Email != user.Email {
@@ -83,7 +94,9 @@ func (s *UserService) Update(ctx context.Context, id int64, req *dto.UpdateUserR
 		user.Email = req.Email
 	}
 
-	if err := s.userRepo.Update(ctx, user); err != nil {
+	updatedUser := dto.UserCreateDTO{}.ToDBModel(*user)
+
+	if err = s.userRepo.Update(ctx, &updatedUser); err != nil {
 		return errorx.ErrDatabaseOperation
 	}
 
