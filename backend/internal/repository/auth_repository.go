@@ -8,11 +8,32 @@ import (
 	"github.com/uptrace/bun"
 )
 
+type IAuthRepository interface {
+	SaveToken(ctx context.Context, token *model.Token) error
+	GetTokenByRefresh(ctx context.Context, refreshToken string) (*model.Token, error)
+	RevokeToken(ctx context.Context, tokenID int64) error
+	CreateSession(ctx context.Context, session *model.Session) error
+	GetSessionByRefreshToken(ctx context.Context, refreshToken string) (*model.Session, error)
+	UpdateSession(ctx context.Context, session *model.Session) error
+	DeleteSession(ctx context.Context, sessionID int64) error
+	BlockSession(ctx context.Context, sessionID int64) error
+	GetSessionsByUserID(ctx context.Context, userID int64) ([]*model.Session, error)
+	AddToBlacklist(ctx context.Context, blacklist *model.TokenBlacklist) error
+	IsTokenBlacklisted(ctx context.Context, token string) (bool, error)
+	CleanupExpiredTokens(ctx context.Context) error
+	CleanupExpiredSessions(ctx context.Context) error
+	CreateUser(ctx context.Context, user *model.User) error
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
+	GetByID(ctx context.Context, id int64) (*model.User, error)
+	Update(ctx context.Context, user *model.User) error
+}
+
 type AuthRepository struct {
 	db *bun.DB
 }
 
-func NewAuthRepository(db *bun.DB) *AuthRepository {
+func NewAuthRepository(db *bun.DB) IAuthRepository {
 	return &AuthRepository{db: db}
 }
 

@@ -25,7 +25,9 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	if err := h.service.Create(c.Context(), &req); err != nil {
+	user := req.ToDBModel(model.User{})
+
+	if err := h.service.Create(c.Context(), user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 
@@ -38,7 +40,19 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 
-	return response.Success(c, resp)
+	users := make([]dto.UserResponseDTO, len(resp))
+	for i, user := range resp {
+		users[i] = dto.UserResponseDTO{
+			ID:        user.ID,
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      string(user.Role),
+			Status:    string(user.Status),
+		}
+	}
+
+	return response.Success(c, users)
 }
 
 func (h *UserHandler) GetByID(c *fiber.Ctx) error {
@@ -51,7 +65,9 @@ func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
 	}
-	return response.Success(c, resp)
+
+	user := dto.UserResponseDTO{}.ToResponseModel(*resp)
+	return response.Success(c, user)
 }
 
 func (h *UserHandler) Update(c *fiber.Ctx) error {
@@ -93,7 +109,9 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 	if err != nil {
 		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
 	}
-	return response.Success(c, resp)
+
+	user := dto.UserResponseDTO{}.ToResponseModel(*resp)
+	return response.Success(c, user)
 }
 
 func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {

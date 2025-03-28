@@ -16,11 +16,22 @@ const (
 	userCacheDuration  = 24 * time.Hour
 )
 
+type IUserRepository interface {
+	Create(ctx context.Context, user *model.User) error
+	GetByID(ctx context.Context, id int64) (*model.User, error)
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
+	Update(ctx context.Context, user *model.User) error
+	Delete(ctx context.Context, id int64) error
+	UpdateLastLogin(ctx context.Context, id int64) error
+	List(ctx context.Context) ([]model.User, error)
+	ExistsByEmail(ctx context.Context, email string) (bool, error)
+}
+
 type UserRepository struct {
 	db *bun.DB
 }
 
-func NewUserRepository(db *bun.DB) *UserRepository {
+func NewUserRepository(db *bun.DB) IUserRepository {
 	return &UserRepository{db: db}
 }
 
