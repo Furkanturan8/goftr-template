@@ -2,12 +2,10 @@ package service
 
 import (
 	"context"
-	"goftr-v1/backend/internal/dto"
 	"goftr-v1/backend/internal/model"
 	"goftr-v1/backend/internal/repository"
 	"goftr-v1/backend/pkg/errorx"
 	"goftr-v1/backend/pkg/jwt"
-
 	"time"
 )
 
@@ -23,45 +21,31 @@ func NewAuthService(a repository.IAuthRepository, u repository.IUserRepository) 
 	}
 }
 
-func (s *AuthService) Register(ctx context.Context, req *dto.RegisterRequest) (*model.User, error) {
+func (s *AuthService) Register(ctx context.Context, user model.User) error {
 	// Email kontrolü
-	exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
+	exists, err := s.userRepo.ExistsByEmail(ctx, user.Email)
 	if err != nil {
-		return nil, errorx.ErrDatabaseOperation
+		return errorx.ErrDatabaseOperation
 	}
 	if exists {
-		return nil, errorx.WithDetails(errorx.ErrInvalidRequest, "Email already exists")
-	}
-
-	// Yeni kullanıcı oluştur
-	user := &model.User{
-		Email:     req.Email,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Role:      model.UserRole,     // Varsayılan rol
-		Status:    model.StatusActive, // Varsayılan durum
-	}
-
-	// Şifreyi hashle
-	if err = user.SetPassword(req.Password); err != nil {
-		return nil, errorx.ErrPasswordHash
+		return errorx.WithDetails(errorx.ErrInvalidRequest, "Email already exists")
 	}
 
 	// Kullanıcıyı kaydet
-	if err = s.userRepo.Create(ctx, user); err != nil {
-		return nil, errorx.ErrDatabaseOperation
+	if err = s.userRepo.Create(ctx, &user); err != nil {
+		return errorx.ErrDatabaseOperation
 	}
 
-	return user, nil
+	return nil
 }
 
-func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
-	user, err := s.userRepo.GetByEmail(ctx, req.Email)
+func (s *AuthService) Login(ctx context.Context, email, password string) (*model.Token, error) {
+	user, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, jwt.ErrInvalidCredentials
 	}
 
-	if !user.CheckPassword(req.Password) {
+	if !user.CheckPassword(password) {
 		return nil, jwt.ErrInvalidCredentials
 	}
 
@@ -106,14 +90,10 @@ func (s *AuthService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Lo
 		return nil, errorx.ErrDatabaseOperation
 	}
 
-	return &dto.LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		ExpiresIn:    24 * 60 * 60, // 24 saat (saniye cinsinden)
-	}, nil
+	return token, nil
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*dto.LoginResponse, error) {
+func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*model.Token, error) {
 	// Refresh token'ı doğrula
 	claims, err := jwt.ValidateRefreshToken(refreshToken)
 	if err != nil {
@@ -168,11 +148,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (*d
 		return nil, errorx.ErrDatabaseOperation
 	}
 
-	return &dto.LoginResponse{
-		AccessToken:  accessToken,
-		RefreshToken: newRefreshToken,
-		ExpiresIn:    24 * 60 * 60,
-	}, nil
+	return token, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, token string) error {

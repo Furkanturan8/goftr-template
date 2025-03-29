@@ -5,12 +5,12 @@ import (
 )
 
 type UserCreateDTO struct {
-	Email     string     `json:"email" validate:"required_without=Phone,omitempty,max=64,email"`
-	FirstName string     `json:"first_name" validate:"required,max=100"`
-	LastName  string     `json:"last_name" validate:"required,max=100"`
-	Password  string     `json:"password" validate:"required,min=3,max=100"`
-	Status    string     `json:"status" validate:"default='active',oneof=active,inactive"`
-	Role      model.Role `json:"role" validate:"required"`
+	Email     string       `json:"email" validate:"required_without=Phone,omitempty,max=64,email"`
+	FirstName string       `json:"first_name" validate:"required,max=100"`
+	LastName  string       `json:"last_name" validate:"required,max=100"`
+	Password  string       `json:"password" validate:"required,min=3,max=100"`
+	Status    model.Status `json:"status" validate:"omitempty,oneof=active inactive"`
+	Role      model.Role   `json:"role" validate:"required"`
 }
 
 func (vm UserCreateDTO) ToDBModel(m model.User) model.User {
@@ -19,7 +19,11 @@ func (vm UserCreateDTO) ToDBModel(m model.User) model.User {
 	m.LastName = vm.LastName
 	_ = m.SetPassword(vm.Password)
 	m.Role = vm.Role
-	m.Status = model.Status(vm.Status)
+	if vm.Status == "" {
+		m.Status = model.StatusActive
+	} else {
+		m.Status = vm.Status
+	}
 
 	return m
 }

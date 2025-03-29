@@ -29,14 +29,6 @@ type ResetPasswordRequest struct {
 	NewPassword string `json:"new_password" validate:"required,min=6"`
 }
 
-type RegisterRequest struct {
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=6"`
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name" validate:"required"`
-}
-
 type RegisterResponse struct {
-	ID    int64  `json:"id"`
 	Email string `json:"email"`
 }

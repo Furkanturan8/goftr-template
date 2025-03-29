@@ -1,11 +1,15 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"goftr-v1/backend/internal/dto"
+	"goftr-v1/backend/internal/model"
 	"goftr-v1/backend/internal/service"
 	"goftr-v1/backend/pkg/errorx"
 	"goftr-v1/backend/pkg/response"
+	"time"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
 )
 
 type AuthHandler struct {
@@ -18,14 +22,16 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 	}
 }
 
+var validate = validator.New()
+
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
-	var req dto.RegisterRequest
+	var req dto.UserCreateDTO
 	if err := c.BodyParser(&req); err != nil {
 		return errorx.ErrInvalidRequest
 	}
 
 	// Validasyon
-	if req.Email == "" || req.Password == "" || req.FirstName == "" || req.LastName == "" {
+	if err := validate.Struct(req); err != nil {
 		return errorx.ErrInvalidRequest
 	}
 
@@ -34,12 +40,17 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Password must be at least 6 characters")
 	}
 
-	user, err := h.authService.Register(c.Context(), &req)
+	user := req.ToDBModel(model.User{})
+
+	err := h.authService.Register(c.Context(), user)
 	if err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 
-	return response.Success(c, dto.RegisterResponse{ID: user.ID, Email: user.Email}, "User registered successfully")
+	resp := dto.RegisterResponse{
+		Email: user.Email,
+	}
+	return response.Success(c, resp, "User registered successfully")
 }
 
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
@@ -49,8 +60,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	// Validasyon
-	if req.Email == "" || req.Password == "" {
-		return errorx.ErrValidation
+	if err := validate.Struct(req); err != nil {
+		return errorx.ErrInvalidRequest
 	}
 
 	// Context'e client bilgilerini ekle
@@ -58,15 +69,18 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	ctx.SetUserValue("user_agent", c.Get("User-Agent"))
 	ctx.SetUserValue("client_ip", c.IP())
 
-	token, err := h.authService.Login(ctx, &req)
+	token, err := h.authService.Login(ctx, req.Email, req.Password)
 	if err != nil {
 		return errorx.ErrInvalidRequest
 	}
 
-	return response.Success(c, dto.LoginResponse{
+	resp := dto.LoginResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-	})
+		ExpiresIn:    int(time.Until(token.ExpiresAt).Seconds()),
+	}
+
+	return response.Success(c, resp, "Login successful")
 }
 
 func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
@@ -75,7 +89,8 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return errorx.ErrValidation
 	}
 
-	if req.RefreshToken == "" {
+	// Validasyon
+	if err := validate.Struct(req); err != nil {
 		return errorx.ErrInvalidRequest
 	}
 
@@ -84,10 +99,13 @@ func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return errorx.ErrUnauthorized
 	}
 
-	return response.Success(c, dto.LoginResponse{
+	resp := dto.LoginResponse{
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
-	})
+		ExpiresIn:    int(time.Until(token.ExpiresAt).Seconds()),
+	}
+
+	return response.Success(c, resp)
 }
 
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
@@ -114,8 +132,9 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	if req.Email == "" {
-		return errorx.WithDetails(errorx.ErrValidation, "Email is required")
+	// Validasyon
+	if err := validate.Struct(req); err != nil {
+		return errorx.ErrInvalidRequest
 	}
 
 	resetToken, err := h.authService.ForgotPassword(c.Context(), req.Email)
@@ -134,8 +153,9 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	if req.Token == "" || req.NewPassword == "" {
-		return errorx.WithDetails(errorx.ErrInvalidRequest, "Token and new password are required")
+	// Validasyon
+	if err := validate.Struct(req); err != nil {
+		return errorx.ErrInvalidRequest
 	}
 
 	if err := h.authService.ResetPassword(c.Context(), req.Token, req.NewPassword); err != nil {

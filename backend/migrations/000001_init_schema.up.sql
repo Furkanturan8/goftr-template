@@ -54,7 +54,7 @@ CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX idx_sessions_refresh_token ON sessions(refresh_token);
 
 -- Token blacklist table
-CREATE TABLE token_blacklist (
+CREATE TABLE token_blacklists (
     id BIGSERIAL PRIMARY KEY,
     token TEXT NOT NULL UNIQUE,
     expires_at TIMESTAMP NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE token_blacklist (
 );
 
 -- Create index for blacklisted tokens
-CREATE INDEX idx_token_blacklist_token ON token_blacklist(token);
+CREATE INDEX idx_token_blacklist_token ON token_blacklists(token);
 
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
