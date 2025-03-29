@@ -17,7 +17,9 @@ func (vm UserCreateDTO) ToDBModel(m model.User) model.User {
 	m.Email = vm.Email
 	m.FirstName = vm.FirstName
 	m.LastName = vm.LastName
-	_ = m.SetPassword(vm.Password)
+	if vm.Password != "" {
+		_ = m.SetPassword(vm.Password)
+	}
 	m.Role = vm.Role
 	if vm.Status == "" {
 		m.Status = model.StatusActive

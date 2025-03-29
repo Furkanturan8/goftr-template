@@ -71,7 +71,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	token, err := h.authService.Login(ctx, req.Email, req.Password)
 	if err != nil {
-		return errorx.ErrInvalidRequest
+		return err
 	}
 
 	resp := dto.LoginResponse{
