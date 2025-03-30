@@ -13,6 +13,7 @@ import (
 
 const (
 	userCacheKeyPrefix = "user:"
+	userListCacheKey   = "users:list"
 	userCacheDuration  = 24 * time.Hour
 )
 
@@ -41,6 +42,14 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 		return fmt.Errorf("veritabanı insert hatası: %v", err)
 	}
 
+	// Yeni kullanıcıyı cache'e ekle
+	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
+	if err = cache.Set(ctx, cacheKey, user, userCacheDuration); err != nil {
+		// Cache hatası loglansın ama işlemi engellemeyelim
+	}
+
+	// Liste cache'ini temizle çünkü yeni kullanıcı eklendi
+	cache.Delete(ctx, userListCacheKey)
 	return nil
 }
 
@@ -95,13 +104,14 @@ func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 		return err
 	}
 
-	// Cache'den sil
+	// Güncellenen kullanıcıyı cache'e ekle
 	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
-	if err = cache.Delete(ctx, cacheKey); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return nil
+	if err = cache.Set(ctx, cacheKey, user, userCacheDuration); err != nil {
+		// Cache hatası loglansın ama işlemi engellemeyelim
 	}
 
+	// Liste cache'ini temizle çünkü kullanıcı güncellendi
+	cache.Delete(ctx, userListCacheKey)
 	return nil
 }
 
@@ -111,13 +121,12 @@ func (r *UserRepository) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
-	// Cache'den sil
+	// Silinen kullanıcıyı cache'den sil
 	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, id)
-	if err = cache.Delete(ctx, cacheKey); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return nil
-	}
+	cache.Delete(ctx, cacheKey)
 
+	// Liste cache'ini temizle çünkü kullanıcı silindi
+	cache.Delete(ctx, userListCacheKey)
 	return nil
 }
 
@@ -129,15 +138,26 @@ func (r *UserRepository) UpdateLastLogin(ctx context.Context, id int64) error {
 		WherePK().
 		Exec(ctx)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Son giriş tarihini güncelle
+	user.LastLogin = time.Now()
+
+	// Güncellenen kullanıcıyı cache'e ekle
+	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, id)
+	if err = cache.Set(ctx, cacheKey, user, userCacheDuration); err != nil {
+		// Cache hatası loglansın ama işlemi engellemeyelim
+	}
+
+	return nil
 }
 
 func (r *UserRepository) List(ctx context.Context) ([]model.User, error) {
-	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix)
-
 	// Önce cache'den kontrol et
 	var users []model.User
-	err := cache.Get(ctx, cacheKey, &users)
+	err := cache.Get(ctx, userListCacheKey, &users)
 	if err == nil {
 		fmt.Printf("Kullanıcılar cache'den alındı\n")
 		return users, nil
@@ -151,7 +171,7 @@ func (r *UserRepository) List(ctx context.Context) ([]model.User, error) {
 	fmt.Printf("Kullanıcılar veritabanından alındı\n")
 
 	// Cache'e kaydet
-	if err = cache.Set(ctx, cacheKey, &users, userCacheDuration); err != nil {
+	if err = cache.Set(ctx, userListCacheKey, &users, userCacheDuration); err != nil {
 		// Cache hatası loglansın ama işlemi engellemeyecek
 		return users, nil
 	}
