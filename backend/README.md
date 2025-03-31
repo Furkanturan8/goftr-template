@@ -331,6 +331,10 @@ PUT /api/users/:id
 DELETE /api/users/:id
 ```
 
+### 6.2. Api istekleri test/api_test.html 
+
+Api isteklerini api_test.html sayfasında deneyebilirsiniz
+
 ## 7. Veritabanı İşlemleri
 
 ### 7.1. Migration Oluşturma
