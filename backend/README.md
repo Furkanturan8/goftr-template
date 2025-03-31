@@ -388,3 +388,8 @@ docker-compose -f docker-compose.prod.yml up -d
 3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
 4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
+
+## 11. TODOS
+1. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir.
+2. Rate Limiting eklenecek
+3. Monitoring eklenecek
