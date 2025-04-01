@@ -3,10 +3,12 @@ package router
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"goftr-v1/backend/internal/handler"
 	"goftr-v1/backend/internal/middleware"
+	"time"
 )
 
 type Router struct {
@@ -28,7 +30,17 @@ func (r *Router) SetupRoutes() {
 	// Middleware'leri ekle
 	r.app.Use(logger.New())
 	r.app.Use(recover.New())
-	r.app.Use(cors.New())
+	r.app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:63342, http://localhost:3005",
+		AllowMethods: "GET,POST,PUT,DELETE",
+		AllowHeaders: "Content-Type, Authorization",
+	}))
+
+	// Rate limiting middleware'i ekle (30 sn de 5 istek olsun)
+	r.app.Use(limiter.New(limiter.Config{
+		Max:        5,                // Maksimum istek sayısı
+		Expiration: 30 * time.Second, // Zaman aralığı
+	}))
 
 	// API versiyonu
 	api := r.app.Group("/api")

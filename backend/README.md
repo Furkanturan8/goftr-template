@@ -359,12 +359,63 @@ CREATE TABLE users (
 - Cache süresinin doğru belirlenmesi
 - Cache invalidation stratejileri
 
-### 8.2. Güvenlik Önlemleri
+# 8.2. Güvenlik Önlemleri
 
-- JWT token kullanımı
-- Password hashing
-- Rate limiting (Henüz eklenmedi)
-- CORS yapılandırması
+Güvenlik, bir uygulamanın en önemli bileşenlerinden biridir. Bu bölümde uygulamada alınan temel güvenlik önlemleri listelenmiştir.
+
+## 1. JWT Token Kullanımı
+Kullanıcı oturum yönetimi ve kimlik doğrulama işlemleri **JSON Web Token (JWT)** ile sağlanmaktadır.
+- Kullanıcı giriş yaptığında kendisine şifrelenmiş bir JWT token verilir.
+- Token, her istekte doğrulanarak kullanıcının yetkilendirilmesi sağlanır.
+- Token süresi dolduğunda kullanıcı tekrar giriş yapmalıdır.
+
+## 2. Şifreleme (Password Hashing)
+Kullanıcı şifreleri **bcrypt** algoritması kullanılarak hashlenir ve güvenli bir şekilde veritabanında saklanır.
+
+Şifreleme adımları:
+1. Kullanıcı kayıt olurken şifre **bcrypt** ile hashlenir.
+2. Giriş yaparken girilen şifre, veritabanındaki hashlenmiş şifre ile karşılaştırılır.
+3. Eşleşme sağlanırsa kullanıcı giriş yapar, aksi takdirde hata döndürülür.
+
+## 3. Rate Limiting
+**Rate limiting** sayesinde belirli bir zaman aralığında yapılan istekler sınırlandırılarak kötüye kullanımın (Brute-force saldırıları, DDoS vb.) önüne geçilir.
+
+**30 sn de 5 istek sınırı** belirlenmiştir.
+### Örnek Log Kayıtları
+```
+16:17:58 | 200 |  103.272625ms | 127.0.0.1 | POST | /api/v1/auth/login | -
+16:18:02 | 204 |      14.042µs | 127.0.0.1 | OPTIONS | /api/v1/users | -
+16:18:02 | 200 |      3.2325ms | 127.0.0.1 | GET | /api/v1/users | Kullanıcılar veritabanından alındı
+16:18:04 | 200 |    1.126375ms | 127.0.0.1 | GET | /api/v1/users | Kullanıcılar cache'den alındı
+16:18:04 | 200 |    1.126375ms | 127.0.0.1 | GET | /api/v1/users | Kullanıcılar cache'den alındı
+16:18:04 | 200 |    1.126375ms | 127.0.0.1 | GET | /api/v1/users | Kullanıcılar cache'den alındı
+16:18:04 | 200 |    1.126375ms | 127.0.0.1 | GET | /api/v1/users | Kullanıcılar cache'den alındı
+16:18:06 | 429 |      12.583µs | 127.0.0.1 | GET | /api/v1/users | Rate limit aşıldı
+16:18:19 | 429 |      34.792µs | 127.0.0.1 | GET | /api/v1/users | Rate limit aşıldı
+```
+- **HTTP 200**: Başarılı istekler
+- **HTTP 429**: Rate limit aşıldığında dönen hata kodu
+
+Rate limiting sayesinde belirlenen sınır aşıldığında kullanıcıya **HTTP 429 - Too Many Requests** hatası döndürülerek saldırılar önlenir.
+
+## 4. CORS (Cross-Origin Resource Sharing) Yapılandırması
+**CORS** sayesinde yalnızca belirli domainlerden gelen isteklerin kabul edilmesi sağlanır.
+- Yanlış yapılandırılmış CORS, güvenlik açıklarına yol açabilir.
+- Güvenli olmayan kaynaklardan gelen istekler engellenir.
+
+Örnek **CORS Konfigürasyonu:**
+```go
+app.Use(cors.New(cors.Config{
+    AllowOrigins: "https://example.com, https://api.example.com",
+    AllowMethods: "GET,POST,PUT,DELETE",
+    AllowHeaders: "Content-Type, Authorization",
+}))
+```
+
+---
+Bu önlemler, uygulamanın güvenliğini artırmaya yardımcı olur ve yetkisiz erişimleri engeller.
+
+
 
 ## 9. Deployment
 
@@ -390,6 +441,7 @@ docker-compose -f docker-compose.prod.yml up -d
 5. Pull Request oluşturun
 
 ## 11. TODOS
-1. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir.
-2. Rate Limiting eklenecek
-3. Monitoring eklenecek
+1. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir. &emsp; <input type="checkbox" disabled>
+2. Rate Limiting eklenecek &emsp; <input type="checkbox" checked disabled>
+3. Monitoring eklenecek &emsp; <input type="checkbox" disabled>
+
