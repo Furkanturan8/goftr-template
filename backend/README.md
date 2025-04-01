@@ -412,8 +412,6 @@ app.Use(cors.New(cors.Config{
 ---
 Bu önlemler, uygulamanın güvenliğini artırmaya yardımcı olur ve yetkisiz erişimleri engeller.
 
-
-
 ## 9. Deployment
 
 ### 9.1. Production Ortamı
@@ -428,6 +426,14 @@ docker-compose -f docker-compose.prod.yml up -d
 - Prometheus metrics
 - Grafana dashboard
 - Log aggregation
+
+Grafana Dashboard:  
+<img width="1200" alt="metrics-1" src="https://github.com/user-attachments/assets/1a601a68-0eee-46e9-a1e9-93b7f152608c" />
+
+Prometheus Metrics:
+<img width="1426" alt="prometheus" src="https://github.com/user-attachments/assets/543ff99a-3a80-45ca-b640-7ca61bff073a" />
+
+
 
 ## 10. Katkıda Bulunma
 
