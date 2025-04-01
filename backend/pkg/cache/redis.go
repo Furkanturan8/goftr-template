@@ -3,9 +3,12 @@ package cache
 import (
 	"context"
 	"encoding/json"
-	"github.com/redis/go-redis/v9"
+	"fmt"
 	"goftr-v1/backend/pkg/errorx"
+	"goftr-v1/backend/pkg/logger"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type RedisCache struct {
@@ -15,15 +18,25 @@ type RedisCache struct {
 var defaultCache *RedisCache
 
 func NewRedisCache(addr, password string, db int) (*RedisCache, error) {
+	logger.Info("Redis bağlantısı başlatılıyor: %s", addr)
+
 	client := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       db,
+		Addr:            addr,
+		Password:        password,
+		DB:              db,
+		MaxRetries:      5,
+		MaxRetryBackoff: 5 * time.Second,
+		MinRetryBackoff: time.Second * 2,
+		DialTimeout:     time.Second * 5,
 	})
 
 	// Bağlantıyı test et
-	if err := client.Ping(context.Background()).Err(); err != nil {
-		return nil, err
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := client.Ping(ctx).Err(); err != nil {
+		logger.Error("Redis ping hatası: %v", err)
+		return nil, fmt.Errorf("redis ping hatası: %v", err)
 	}
 
 	return &RedisCache{client: client}, nil
