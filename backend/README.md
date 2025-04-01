@@ -6,7 +6,7 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 
 ```
 ├── cmd/
-│   └── api/
+│   └── server/
 │       └── main.go           # Ana uygulama giriş noktası
 ├── config/
 │   ├── config.go            # Yapılandırma yapıları
@@ -24,6 +24,7 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 │   ├── errorx/         # Hata yönetimi
 │   ├── jwt/            # JWT işlemleri
 │   ├── logger/         # Loglama işlemleri
+│   ├── monitoring/     # Monitoring işlemleri  
 │   ├── query/          # Query işlemleri
 │   └── response/       # Response işlemleri
 ├── migrations/         # Veritabanı migrasyon dosyaları

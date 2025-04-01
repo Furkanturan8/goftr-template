@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Uygulamayı derle
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main cmd/server/main.go
 
 # Çalışma aşaması
 FROM alpine:latest
