@@ -12,7 +12,6 @@ import (
 	"goftr-v1/backend/pkg/cache"
 	"goftr-v1/backend/pkg/jwt"
 	"goftr-v1/backend/pkg/logger"
-
 	"log"
 	"os"
 	"os/signal"
@@ -33,22 +32,22 @@ func main() {
 	}
 
 	// Logger'ı başlat
-	if err = logger.Init(cfg.App.LogDir); err != nil {
+	if err = logger.Init(cfg.AppConfig.LogDir); err != nil {
 		log.Printf("Logger başlatma hatası: %v", err)
 		os.Exit(1)
 	}
 
 	// Redis cache'i başlat
-	if err = cache.InitDefaultCache(cfg.Redis.GetAddr(), cfg.Redis.Password, cfg.Redis.DB); err != nil {
+	if err = cache.InitDefaultCache(cfg.RedisConfig.GetAddr(), cfg.RedisConfig.Password, cfg.RedisConfig.DB); err != nil {
 		logger.Error("Redis cache başlatma hatası: %v", err)
 		os.Exit(1)
 	}
 
 	// JWT yapılandırmasını başlat
-	jwt.Init(&cfg.JWT)
+	jwt.Init(&cfg.JWTConfig)
 
 	// Database bağlantısı
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(cfg.Database.GetDSN())))
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(cfg.DBConfig.GetDSN())))
 	db := bun.NewDB(sqldb, pgdialect.New())
 	defer db.Close()
 
@@ -73,7 +72,7 @@ func main() {
 
 	// Router'ı oluştur ve yapılandır
 	r := router.NewRouter(authHandler, userHandler)
-	r.SetupRoutes()
+	r.SetupRoutes(cfg)
 
 	// Graceful shutdown için kanal oluştur
 	shutdown := make(chan os.Signal, 1)
@@ -82,7 +81,7 @@ func main() {
 	// HTTP sunucusunu başlat
 	serverShutdown := make(chan struct{})
 	go func() {
-		addr := fmt.Sprintf(":%d", cfg.App.Port)
+		addr := fmt.Sprintf(":%d", cfg.AppConfig.Port)
 		logger.Info("Sunucu %s portunda başlatılıyor...", addr)
 		if err = r.GetApp().Listen(addr); err != nil {
 			logger.Error("Sunucu hatası: %v", err)
@@ -95,7 +94,7 @@ func main() {
 	logger.Info("Graceful shutdown başlatılıyor...")
 
 	// Shutdown timeout context'i oluştur
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.App.ShutdownTimeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.AppConfig.ShutdownTimeout)*time.Second)
 	defer cancel()
 
 	// Sunucuyu durdur

@@ -4,32 +4,34 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /app
 
 # Gerekli paketleri yükle
-RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache gcc musl-dev git
 
 # Go modüllerini kopyala ve indir
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Kaynak kodları kopyala
-COPY .. .
+# Tüm kaynak kodlarını kopyala
+COPY . .
 
 # Uygulamayı derle
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o main cmd/api/main.go
 
 # Çalışma aşaması
 FROM alpine:latest
 
 WORKDIR /app
 
-# SSL sertifikaları için gerekli
-RUN apk --no-cache add ca-certificates
+# SSL sertifikaları ve temel araçlar
+RUN apk --no-cache add ca-certificates tzdata
 
-# Builder aşamasından derlenmiş uygulamayı kopyala
+# Builder aşamasından gerekli dosyaları kopyala
 COPY --from=builder /app/main .
-COPY --from=builder /app/config/config.yaml ./config/
 
-# Uygulama için gerekli dizinleri oluştur
+# Log dizini oluştur ve izinleri ayarla
 RUN mkdir -p /app/logs
 
+# Port bilgisi (opsiyonel)
+EXPOSE 3005
+
 # Uygulamayı çalıştır
-CMD ["./main"] 
+CMD ["./main"]

@@ -1,14 +1,17 @@
 package router
 
 import (
+	"goftr-v1/backend/config"
+	"goftr-v1/backend/internal/handler"
+	"goftr-v1/backend/internal/middleware"
+	"goftr-v1/backend/pkg/monitoring"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"goftr-v1/backend/internal/handler"
-	"goftr-v1/backend/internal/middleware"
-	"time"
 )
 
 type Router struct {
@@ -26,7 +29,7 @@ func NewRouter(authHandler *handler.AuthHandler, userHandler *handler.UserHandle
 	}
 }
 
-func (r *Router) SetupRoutes() {
+func (r *Router) SetupRoutes(cfg *config.Config) {
 	// Middleware'leri ekle
 	r.app.Use(logger.New())
 	r.app.Use(recover.New())
@@ -36,15 +39,31 @@ func (r *Router) SetupRoutes() {
 		AllowHeaders: "Content-Type, Authorization",
 	}))
 
-	// Rate limiting middleware'i ekle (30 sn de 5 istek olsun)
+	// Rate limiting middleware'i ekle (30 sn de 10 istek olsun)
 	r.app.Use(limiter.New(limiter.Config{
-		Max:        5,                // Maksimum istek sayısı
+		Max:        10,               // Maksimum istek sayısı
 		Expiration: 30 * time.Second, // Zaman aralığı
+		KeyGenerator: func(c *fiber.Ctx) string {
+			// /metrics endpoint'i için rate limiting'i devre dışı bırak
+			if c.Path() == "/metrics" {
+				return "metrics_no_limit"
+			}
+			// Her route'u ayrı ayrı sınırla (örneğin: "/users", "/users/:id", "/auth/login")
+			return c.IP() + ":" + c.Path()
+		},
 	}))
+
+	// Prometheus Middleware ekleyelim
+	r.app.Use(monitoring.PrometheusMiddleware())
 
 	// API versiyonu
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
+
+	// Prometheus'un topladığı metrikleri görüntülemek için /metrics endpoint'i
+	if cfg.MonitoringConfig.Prometheus.Enabled {
+		r.app.Get(cfg.MonitoringConfig.Prometheus.Endpoint, monitoring.MetricsHandler())
+	}
 
 	// Auth routes
 	auth := v1.Group("/auth")
