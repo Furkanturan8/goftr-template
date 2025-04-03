@@ -20,7 +20,7 @@ func NewUserHandler(s *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) Create(c *fiber.Ctx) error {
-	var req dto.UserCreateDTO
+	var req dto.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return errorx.ErrInvalidRequest
 	}
@@ -40,9 +40,10 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 
-	users := make([]dto.UserResponseDTO, len(resp))
+	// todo dto.UserResponse{}.ToResponseModel denee!
+	users := make([]dto.UserResponse, len(resp))
 	for i, user := range resp {
-		users[i] = dto.UserResponseDTO{
+		users[i] = dto.UserResponse{
 			ID:        user.ID,
 			Email:     user.Email,
 			FirstName: user.FirstName,
@@ -66,7 +67,7 @@ func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
 	}
 
-	user := dto.UserResponseDTO{}.ToResponseModel(*resp)
+	user := dto.UserResponse{}.ToResponseModel(*resp)
 	return response.Success(c, user)
 }
 
@@ -76,7 +77,7 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	var req dto.UserCreateDTO
+	var req dto.CreateUserRequest
 	if err = c.BodyParser(&req); err != nil {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}
@@ -110,14 +111,14 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
 	}
 
-	user := dto.UserResponseDTO{}.ToResponseModel(*resp)
+	user := dto.UserResponse{}.ToResponseModel(*resp)
 	return response.Success(c, user)
 }
 
 func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(int64)
 
-	var req dto.UserCreateDTO
+	var req dto.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}

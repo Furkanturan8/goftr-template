@@ -25,7 +25,7 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 var validate = validator.New()
 
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
-	var req dto.UserCreateDTO
+	var req dto.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return errorx.ErrInvalidRequest
 	}

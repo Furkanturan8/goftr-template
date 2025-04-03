@@ -7,32 +7,32 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 ```
 ├── cmd/
 │   └── server/
-│       └── main.go           # Ana uygulama giriş noktası
+│       └── main.go    # Ana uygulama giriş noktası
 ├── config/
-│   ├── config.go            # Yapılandırma yapıları
-│   └── config.yaml          # Yapılandırma dosyası
+│    └── config.go     # Yapılandırma kodları
 ├── internal/
-│   ├── model/              # Veritabanı modelleri
-│   ├── repository/         # Veritabanı işlemleri
-│   ├── service/           # İş mantığı katmanı
-│   ├── handler/           # HTTP işleyicileri
-│   ├── dto/              # Veri transfer nesneleri
-│   ├── middleware/       # HTTP ara yazılımları
-│   └── router/          # Router yapılandırmaları
+│   ├── model/         # Veritabanı modelleri
+│   ├── repository/    # Veritabanı işlemleri
+│   ├── service/       # İş mantığı katmanı
+│   ├── handler/       # HTTP işleyicileri
+│   ├── dto/           # Veri transfer nesneleri
+│   ├── middleware/    # HTTP ara yazılımları
+│   └── router/        # Router yapılandırmaları
 ├── pkg/
-│   ├── cache/           # Redis cache işlemleri
-│   ├── errorx/         # Hata yönetimi
-│   ├── jwt/            # JWT işlemleri
-│   ├── logger/         # Loglama işlemleri
-│   ├── monitoring/     # Monitoring işlemleri  
-│   ├── query/          # Query işlemleri
-│   └── response/       # Response işlemleri
-├── migrations/         # Veritabanı migrasyon dosyaları
-├── tests/            # Test dosyaları
-├── logs/             # Log dosyaları
-├── Dockerfile        # Docker yapılandırması
+│   ├── cache/         # Redis cache işlemleri
+│   ├── errorx/        # Hata yönetimi
+│   ├── jwt/           # JWT işlemleri
+│   ├── logger/        # Loglama işlemleri
+│   ├── monitoring/    # Monitoring işlemleri  
+│   ├── query/         # Query işlemleri
+│   └── response/      # Response işlemleri
+├── migrations/        # Veritabanı migrasyon dosyaları
+├── tests/             # Test dosyaları
+├── logs/              # Log dosyaları
+├── Dockerfile         # Docker yapılandırması
 ├── docker-compose.yml # Docker servisleri
-└── go.mod            # Go modül tanımlamaları
+├── .env               # Ortam değişkenleri
+└── go.mod             # Go modül tanımlamaları
 ```
 
 ## 2. Başlangıç
@@ -433,8 +433,6 @@ Grafana Dashboard:
 
 Prometheus Metrics:
 <img width="1426" alt="prometheus" src="https://github.com/user-attachments/assets/543ff99a-3a80-45ca-b640-7ca61bff073a" />
-
-
 
 ## 10. Katkıda Bulunma
 
