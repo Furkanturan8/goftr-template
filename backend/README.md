@@ -199,6 +199,15 @@ Yukarıda kendimiz oluşturduğumuz dosyaları/kodları (model, dto, handler, se
   ./generate-structure.sh Product 'Name string' 'Description string' 'Price float64'
 ```
 
+- -h veya --help komutu 
+	<img width="1018" alt="1" src="https://github.com/user-attachments/assets/a98a3250-023d-4763-b8b1-8b970917934f" />
+
+- Product örneği için komutu çalıştırma
+	<img width="1018" alt="2" src="https://github.com/user-attachments/assets/031a0fd0-f971-4719-b15a-505c2e04b718" />
+
+- Daha önceden var olan Product modeli için tekrar deneme yapalım
+	<img width="1018" alt="3" src="https://github.com/user-attachments/assets/aae9f0c8-6df3-4a7d-a783-bc8b0a4484a8" />
+
 ### 4.6. cmd/api/main.go Katmanı
 
 ```go
