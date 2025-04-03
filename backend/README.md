@@ -7,32 +7,33 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 ```
 ├── cmd/
 │   └── server/
-│       └── main.go    # Ana uygulama giriş noktası
+│       └── main.go         # Ana uygulama giriş noktası
 ├── config/
-│    └── config.go     # Yapılandırma kodları
+│    └── config.go          # Yapılandırma kodları
 ├── internal/
-│   ├── model/         # Veritabanı modelleri
-│   ├── repository/    # Veritabanı işlemleri
-│   ├── service/       # İş mantığı katmanı
-│   ├── handler/       # HTTP işleyicileri
-│   ├── dto/           # Veri transfer nesneleri
-│   ├── middleware/    # HTTP ara yazılımları
-│   └── router/        # Router yapılandırmaları
+│   ├── model/              # Veritabanı modelleri
+│   ├── repository/         # Veritabanı işlemleri
+│   ├── service/            # İş mantığı katmanı
+│   ├── handler/            # HTTP işleyicileri
+│   ├── dto/                # Veri transfer nesneleri
+│   ├── middleware/         # HTTP ara yazılımları
+│   └── router/             # Router yapılandırmaları
 ├── pkg/
-│   ├── cache/         # Redis cache işlemleri
-│   ├── errorx/        # Hata yönetimi
-│   ├── jwt/           # JWT işlemleri
-│   ├── logger/        # Loglama işlemleri
-│   ├── monitoring/    # Monitoring işlemleri  
-│   ├── query/         # Query işlemleri
-│   └── response/      # Response işlemleri
-├── migrations/        # Veritabanı migrasyon dosyaları
-├── tests/             # Test dosyaları
-├── logs/              # Log dosyaları
-├── Dockerfile         # Docker yapılandırması
-├── docker-compose.yml # Docker servisleri
-├── .env               # Ortam değişkenleri
-└── go.mod             # Go modül tanımlamaları
+│   ├── cache/              # Redis cache işlemleri
+│   ├── errorx/             # Hata yönetimi
+│   ├── jwt/                # JWT işlemleri
+│   ├── logger/             # Loglama işlemleri
+│   ├── monitoring/         # Monitoring işlemleri  
+│   ├── query/              # Query işlemleri
+│   └── response/           # Response işlemleri
+├── migrations/             # Veritabanı migrasyon dosyaları
+├── tests/                  # Test dosyaları
+├── logs/                   # Log dosyaları
+├── Dockerfile              # Docker yapılandırması
+├── docker-compose.yml      # Docker servisleri
+├── generative-structure.sh # Otomatik dosya oluşturma scripti
+├── .env                    # Ortam değişkenleri
+└── go.mod                  # Go modül tanımlamaları
 ```
 
 ## 2. Başlangıç
@@ -190,7 +191,15 @@ func NewUserHandler(s *service.UserService) *UserHandler {
 }
 ```
 
-### 4.5. cmd/api/main.go Katmanı
+### 4.5. Otomatik Dosya Oluşturma (generative-structure.sh)
+
+Yukarıda kendimiz oluşturduğumuz dosyaları/kodları (model, dto, handler, service, repository) otomatik olarak oluşturmak için `generative-structure.sh` (kendi yapımıza göre tasarlanmış shell script kodları mevcuttur) dosyasını kullanabilirsiniz.
+
+```shell
+  ./generate-structure.sh Product 'Name string' 'Description string' 'Price float64'
+```
+
+### 4.6. cmd/api/main.go Katmanı
 
 ```go
 
@@ -226,7 +235,7 @@ func main(){
 
 ```
 
-### 4.6. Router Katmanı
+### 4.7. Router Katmanı
 
 ```go
 type Router struct {
