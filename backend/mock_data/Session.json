@@ -1,0 +1,57 @@
+[
+  {
+    "id": 378,
+    "user_id": 9551,
+    "refresh_token": "refresh_token_14993",
+    "user_agent": "user_agent_10848",
+    "client_ip": "client_ip_21318",
+    "is_blocked": false,
+    "expires_at": "2025-04-04T16:59:09+03:00",
+    "created_at": "2025-04-04T16:59:09+03:00",
+    "updated_at": "2025-04-04T16:59:09+03:00"
+  },
+  {
+    "id": 7158,
+    "user_id": 7467,
+    "refresh_token": "refresh_token_17541",
+    "user_agent": "user_agent_11296",
+    "client_ip": "client_ip_19960",
+    "is_blocked": true,
+    "expires_at": "2025-04-04T16:59:09+03:00",
+    "created_at": "2025-04-04T16:59:09+03:00",
+    "updated_at": "2025-04-04T16:59:09+03:00"
+  },
+  {
+    "id": 8030,
+    "user_id": 2080,
+    "refresh_token": "refresh_token_5799",
+    "user_agent": "user_agent_26619",
+    "client_ip": "client_ip_3914",
+    "is_blocked": false,
+    "expires_at": "2025-04-04T16:59:09+03:00",
+    "created_at": "2025-04-04T16:59:09+03:00",
+    "updated_at": "2025-04-04T16:59:09+03:00"
+  },
+  {
+    "id": 1601,
+    "user_id": 524,
+    "refresh_token": "refresh_token_23475",
+    "user_agent": "user_agent_25787",
+    "client_ip": "client_ip_28452",
+    "is_blocked": true,
+    "expires_at": "2025-04-04T16:59:09+03:00",
+    "created_at": "2025-04-04T16:59:09+03:00",
+    "updated_at": "2025-04-04T16:59:09+03:00"
+  },
+  {
+    "id": 6171,
+    "user_id": 9686,
+    "refresh_token": "refresh_token_13059",
+    "user_agent": "user_agent_29103",
+    "client_ip": "client_ip_11021",
+    "is_blocked": true,
+    "expires_at": "2025-04-04T16:59:09+03:00",
+    "created_at": "2025-04-04T16:59:09+03:00",
+    "updated_at": "2025-04-04T16:59:09+03:00"
+  }
+]

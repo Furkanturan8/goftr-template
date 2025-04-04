@@ -1,0 +1,57 @@
+[
+  {
+    "id": 880,
+    "email": "user02189@example.com",
+    "first_name": "first_name_3554",
+    "last_name": "last_name_18924",
+    "role": "user",
+    "status": "inactive",
+    "last_login": "2025-04-05T00:01:03+03:00",
+    "created_at": "2025-04-05T00:01:03+03:00",
+    "updated_at": "2025-04-05T00:01:03+03:00"
+  },
+  {
+    "id": 8133,
+    "email": "user126000@example.com",
+    "first_name": "first_name_20623",
+    "last_name": "last_name_4369",
+    "role": "user",
+    "status": "active",
+    "last_login": "2025-04-05T00:01:03+03:00",
+    "created_at": "2025-04-05T00:01:03+03:00",
+    "updated_at": "2025-04-05T00:01:03+03:00"
+  },
+  {
+    "id": 1789,
+    "email": "user214739@example.com",
+    "first_name": "first_name_13746",
+    "last_name": "last_name_2772",
+    "role": "user",
+    "status": "inactive",
+    "last_login": "2025-04-05T00:01:03+03:00",
+    "created_at": "2025-04-05T00:01:03+03:00",
+    "updated_at": "2025-04-05T00:01:03+03:00"
+  },
+  {
+    "id": 9766,
+    "email": "user32152@example.com",
+    "first_name": "first_name_17722",
+    "last_name": "last_name_19614",
+    "role": "admin",
+    "status": "banned",
+    "last_login": "2025-04-05T00:01:03+03:00",
+    "created_at": "2025-04-05T00:01:03+03:00",
+    "updated_at": "2025-04-05T00:01:03+03:00"
+  },
+  {
+    "id": 3018,
+    "email": "user413497@example.com",
+    "first_name": "first_name_5783",
+    "last_name": "last_name_10706",
+    "role": "admin",
+    "status": "active",
+    "last_login": "2025-04-05T00:01:04+03:00",
+    "created_at": "2025-04-05T00:01:04+03:00",
+    "updated_at": "2025-04-05T00:01:04+03:00"
+  }
+]

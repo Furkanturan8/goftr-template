@@ -461,6 +461,8 @@ Prometheus Metrics:
 5. Pull Request oluşturun
 
 ## 11. TODOS
-1. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir. &emsp; [x]
+1. Monitoring eklenecek &emsp; [✓]
 2. Rate Limiting eklenecek &emsp; [✓]
-3. Monitoring eklenecek &emsp; [✓]
+3. Generate-structure.sh dosyası eklenecek (otomatik dosya oluşturucu) &emsp; [✓]
+4. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir. &emsp; [✓]
+5. Migration ve db işlemleri düzenlenecek &emsp; [x]
