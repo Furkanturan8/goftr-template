@@ -117,6 +117,8 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 
 func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(int64)
+	role := c.Locals("role").(model.Role)
+	status := c.Locals("status").(model.Status)
 
 	var req dto.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -124,6 +126,9 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	}
 
 	user := req.ToDBModel(model.User{})
+	user.ID = userID
+	user.Role = role
+	user.Status = status
 
 	if err := h.service.Update(c.Context(), userID, user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())

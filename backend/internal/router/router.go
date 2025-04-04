@@ -29,7 +29,20 @@ func NewRouter(authHandler *handler.AuthHandler, userHandler *handler.UserHandle
 	}
 }
 
-func (r *Router) SetupRoutes(cfg *config.Config) {
+var prometheusEndpoint string
+var prometheusEnabled bool
+
+func (r *Router) Init(cfg *config.Config) {
+	prometheusEnabled = cfg.MonitoringConfig.Prometheus.Enabled
+	prometheusEndpoint = cfg.MonitoringConfig.Prometheus.Endpoint
+}
+
+func (r *Router) SetupRoutes() {
+	// Prometheus'un topladığı metrikleri görüntülemek için /metrics endpoint'i
+	if prometheusEnabled {
+		r.app.Get(prometheusEndpoint, monitoring.MetricsHandler())
+	}
+
 	// Middleware'leri ekle
 	r.app.Use(logger.New())
 	r.app.Use(recover.New())
@@ -45,7 +58,7 @@ func (r *Router) SetupRoutes(cfg *config.Config) {
 		Expiration: 30 * time.Second, // Zaman aralığı
 		KeyGenerator: func(c *fiber.Ctx) string {
 			// /metrics endpoint'i için rate limiting'i devre dışı bırak
-			if c.Path() == "/metrics" {
+			if c.Path() == prometheusEndpoint {
 				return "metrics_no_limit"
 			}
 			// Her route'u ayrı ayrı sınırla (örneğin: "/users", "/users/:id", "/auth/login")
@@ -59,11 +72,6 @@ func (r *Router) SetupRoutes(cfg *config.Config) {
 	// API versiyonu
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
-
-	// Prometheus'un topladığı metrikleri görüntülemek için /metrics endpoint'i
-	if cfg.MonitoringConfig.Prometheus.Enabled {
-		r.app.Get(cfg.MonitoringConfig.Prometheus.Endpoint, monitoring.MetricsHandler())
-	}
 
 	// Auth routes
 	auth := v1.Group("/auth")

@@ -72,7 +72,8 @@ func main() {
 
 	// Router'ı oluştur ve yapılandır
 	r := router.NewRouter(authHandler, userHandler)
-	r.SetupRoutes(cfg)
+	r.Init(cfg)
+	r.SetupRoutes()
 
 	// Graceful shutdown için kanal oluştur
 	shutdown := make(chan os.Signal, 1)

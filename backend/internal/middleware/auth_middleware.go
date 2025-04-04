@@ -31,6 +31,7 @@ func AuthMiddleware() fiber.Handler {
 		// Context'e kullanıcı bilgilerini ekle
 		c.Locals("userID", claims.UserID)
 		c.Locals("role", claims.Role)
+		c.Locals("status", claims.Status)
 		c.Locals("email", claims.Email)
 
 		return c.Next()

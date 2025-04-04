@@ -36,7 +36,7 @@ type UserResponse struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Role      string `json:"role"`
-	Status    string `json:"active"`
+	Status    string `json:"status"`
 }
 
 func (dto UserResponse) ToResponseModel(m model.User) UserResponse {

@@ -30,9 +30,10 @@ type Session struct {
 
 // Claims yapısı
 type Claims struct {
-	UserID int64      `json:"user_id"`
-	Role   model.Role `json:"role"`
-	Email  string     `json:"email"`
+	UserID int64        `json:"user_id"`
+	Role   model.Role   `json:"role"`
+	Email  string       `json:"email"`
+	Status model.Status `json:"status"`
 	jwt.RegisteredClaims
 }
 
@@ -58,6 +59,7 @@ func Generate(user *model.User) (string, error) {
 		user.ID,
 		user.Role,
 		user.Email,
+		user.Status,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(jwtConfig.Expiration) * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

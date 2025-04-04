@@ -108,6 +108,7 @@ func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, user.ID)
 	if err = cache.Set(ctx, cacheKey, user, userCacheDuration); err != nil {
 		// Cache hatası loglansın ama işlemi engellemeyelim
+		fmt.Println("Cache güncelleme hatası:", err)
 	}
 
 	// Liste cache'ini temizle çünkü kullanıcı güncellendi
