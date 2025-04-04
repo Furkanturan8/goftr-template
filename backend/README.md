@@ -307,6 +307,15 @@ func (r *Router) GetApp() *fiber.App {
 }
 ```
 
+### 4.8. Otomatik Mock Dataları Oluşturma (generative-mock.sh)
+
+Model ismi ve sayısını girerek otomatik mock json dataları oluşturur. 
+generative-mock.sh dosyası sayesinde frontend geliştirme ve test süreçlerinde hızlı ve pratik kullanım imkânı sunar.
+
+- Kullanımı: 
+
+ 	<img width="535" alt="Ekran Resmi 2025-04-05 00 16 20" src="https://github.com/user-attachments/assets/7f579a59-9d79-4890-b877-c414ebb237bf" />
+
 ## 5. Redis Cache Kullanımı
 
 ### 5.1. Cache İşlemleri
