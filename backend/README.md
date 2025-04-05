@@ -8,6 +8,8 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 ├── cmd/
 │   └── server/
 │       └── main.go         # Ana uygulama giriş noktası
+│   └── migrate/
+│       └── main.go         # DB Migrate başlangıcı
 ├── config/
 │    └── config.go          # Yapılandırma kodları
 ├── internal/
@@ -27,11 +29,13 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 │   ├── query/              # Query işlemleri
 │   └── response/           # Response işlemleri
 ├── migrations/             # Veritabanı migrasyon dosyaları
+├── mock_data/              # generative-mock.sh ile oluşturulmuş mock veriler 
 ├── tests/                  # Test dosyaları
 ├── logs/                   # Log dosyaları
 ├── Dockerfile              # Docker yapılandırması
 ├── docker-compose.yml      # Docker servisleri
 ├── generative-structure.sh # Otomatik dosya oluşturma scripti
+├── generative-mock.sh      # Otomatik mock oluşturma scripti
 ├── .env                    # Ortam değişkenleri
 └── go.mod                  # Go modül tanımlamaları
 ```
@@ -461,17 +465,17 @@ Grafana Dashboard:
 Prometheus Metrics:
 <img width="1426" alt="prometheus" src="https://github.com/user-attachments/assets/543ff99a-3a80-45ca-b640-7ca61bff073a" />
 
-## 10. Katkıda Bulunma
+## 10. TODOS
+1. Monitoring eklenecek &emsp; [✓]
+2. Rate Limiting eklenecek &emsp; [✓]
+3. Generate-structure.sh dosyası eklenecek (otomatik dosya oluşturucu) &emsp; [✓]
+4. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir. &emsp; [✓]
+5. Migration ve db işlemleri düzenlenecek &emsp; [✓]
+
+## 11. Katkıda Bulunma
 
 1. Fork'layın
 2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
 3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
 4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
-
-## 11. TODOS
-1. Monitoring eklenecek &emsp; [✓]
-2. Rate Limiting eklenecek &emsp; [✓]
-3. Generate-structure.sh dosyası eklenecek (otomatik dosya oluşturucu) &emsp; [✓]
-4. Frontend veya mobil app için mock datalar oluşturma (model ismi girilerek bir generate_mock.sh dosyası yardımıyla) eklenebilir. &emsp; [✓]
-5. Migration ve db işlemleri düzenlenecek &emsp; [x]
