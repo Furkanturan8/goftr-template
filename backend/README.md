@@ -369,10 +369,10 @@ Api isteklerini api_test.html sayfasında deneyebilirsiniz
 
 ## 7. Veritabanı İşlemleri
 
-### 7.1. Migration Oluşturma
+### 7.1. Tablo oluşturma SQL Kodları
 
 ```sql
--- migrations/001_create_users.sql
+-- migrations/sql/000001_create_users.sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -381,6 +381,18 @@ CREATE TABLE users (
     last_name VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+```
+### 7.2. Migration Komutları Uygulanması
+
+```bash
+  # Tüm migration'ları uygula
+go run cmd/migrate/main.go -action up
+
+# Son 2 migration'ı geri al
+go run cmd/migrate/main.go -action down -step 2
+
+# Migration listesini görüntüle
+go run cmd/migrate/main.go -action status
 ```
 
 ## 8. Güvenlik ve Performans
