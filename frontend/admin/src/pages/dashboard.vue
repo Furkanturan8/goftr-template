@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import AnalyticsCongratulations from '@/views/dashboard/AnalyticsCongratulations.vue'
-import AnalyticsFinanceTabs from '@/views/dashboard/AnalyticsFinanceTab.vue'
-import AnalyticsOrderStatistics from '@/views/dashboard/AnalyticsOrderStatistics.vue'
-import AnalyticsProfitReport from '@/views/dashboard/AnalyticsProfitReport.vue'
-import AnalyticsTotalRevenue from '@/views/dashboard/AnalyticsTotalRevenue.vue'
-import AnalyticsTransactions from '@/views/dashboard/AnalyticsTransactions.vue'
+import AnalyticsCongratulations from './dashboard/AnalyticsCongratulations.vue'
+import AnalyticsFinanceTabs from './dashboard/AnalyticsFinanceTab.vue'
+import AnalyticsOrderStatistics from './dashboard/AnalyticsOrderStatistics.vue'
+import AnalyticsProfitReport from './dashboard/AnalyticsProfitReport.vue'
+import AnalyticsTotalRevenue from './dashboard/AnalyticsTotalRevenue.vue'
+import AnalyticsTransactions from './dashboard/AnalyticsTransactions.vue'
 
-
-console.log(JwtService.getAccessToken())
 // 👉 Images
 import chart from '@images/cards/chart-success.png'
 import card from '@images/cards/credit-card-primary.png'

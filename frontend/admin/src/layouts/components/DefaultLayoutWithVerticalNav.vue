@@ -22,6 +22,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
           <VIcon icon="bx-menu" />
         </IconBtn>
 
+        <!-- todo: search kısmı yapılacak -->
         <!-- 👉 Search -->
         <div
           class="d-flex align-center cursor-pointer ms-lg-n3"
@@ -29,6 +30,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
         >
           <!-- 👉 Search Trigger button -->
           <IconBtn>
+            <span style="margin-left: 20px">ara</span>
             <VIcon icon="bx-search" />
           </IconBtn>
 
@@ -39,18 +41,6 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
         </div>
 
         <VSpacer />
-
-        <IconBtn
-          href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <VIcon icon="bxl-github" />
-        </IconBtn>
-
-        <IconBtn>
-          <VIcon icon="bx-bell" />
-        </IconBtn>
 
         <NavbarThemeSwitcher class="me-1" />
 
@@ -70,9 +60,9 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
         />
         <!-- eslint-enable -->
 
-        <h1 class="app-logo-title">
-          sneat
-        </h1>
+        <h2>
+          Goftr Template
+        </h2>
       </RouterLink>
 
       <IconBtn

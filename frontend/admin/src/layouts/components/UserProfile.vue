@@ -1,5 +1,17 @@
 <script setup lang="ts">
 import avatar1 from '@images/avatars/avatar-1.png'
+import {useUserStore} from "@/store/user";
+
+const userStore = useUserStore()
+
+const onLogout = async () => {
+  try {
+    await userStore.logout() // Logout API isteği
+    window.location.href = '/login' // Başarılıysa login sayfasına yönlendirin
+  } catch (error) {
+    console.error('Logout işlemi başarısız:', error)
+  }
+}
 </script>
 
 <template>
@@ -48,9 +60,9 @@ import avatar1 from '@images/avatars/avatar-1.png'
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              John Doe
+              {{ userStore.user.first_name }}
             </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle>{{ userStore.user.role }}</VListItemSubtitle>
           </VListItem>
           <VDivider class="my-2" />
 
@@ -71,7 +83,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
           <VDivider class="my-2" />
 
           <!-- 👉 Logout -->
-          <VListItem to="/login">
+          <VListItem @click="onLogout">
             <template #prepend>
               <VIcon
                 class="me-2"
@@ -79,7 +91,6 @@ import avatar1 from '@images/avatars/avatar-1.png'
                 size="22"
               />
             </template>
-
             <VListItemTitle>Logout</VListItemTitle>
           </VListItem>
         </VList>

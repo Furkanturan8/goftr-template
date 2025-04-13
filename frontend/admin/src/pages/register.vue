@@ -2,12 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/services/ApiService'
-import authV1RegisterIllustrationBorderedDark from '@images/pages/auth-v1-register-illustration-bordered-dark.png'
-import authV1RegisterIllustrationBorderedLight from '@images/pages/auth-v1-register-illustration-bordered-light.png'
-import authV1RegisterIllustrationDark from '@images/pages/auth-v1-register-illustration-dark.png'
-import authV1RegisterIllustrationLight from '@images/pages/auth-v1-register-illustration-light.png'
-import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
-import { themeConfig } from '@themeConfig'
 
 const router = useRouter()
 const loading = ref(false)
@@ -53,10 +47,6 @@ const handleRegister = async () => {
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
     <VCard class="auth-card pa-4 pt-7">
-      <VCardItem class="justify-center">
-        <VNodeRenderer :nodes="themeConfig.app.logo" />
-      </VCardItem>
-
       <VCardText class="pt-2">
         <h5 class="text-h5 mb-1">
           Macera burada başlıyor 🚀
@@ -159,27 +149,7 @@ const handleRegister = async () => {
       </VCardText>
     </VCard>
 
-    <!-- bg img -->
-    <VImg
-      class="auth-footer-start-tree d-none d-md-block"
-      :src="authV1RegisterIllustrationBorderedLight"
-    />
 
-    <VImg
-      class="auth-footer-end-tree d-none d-md-block"
-      :src="authV1RegisterIllustrationLight"
-    />
-
-    <!-- Dark layout -->
-    <VImg
-      class="auth-footer-start-tree-dark d-none d-md-block"
-      :src="authV1RegisterIllustrationBorderedDark"
-    />
-
-    <VImg
-      class="auth-footer-end-tree-dark d-none d-md-block"
-      :src="authV1RegisterIllustrationDark"
-    />
   </div>
 </template>
 

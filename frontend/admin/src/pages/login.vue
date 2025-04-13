@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/services/ApiService'
-import JwtService from "@/services/JwtService";
 import {useUserStore} from "@/store/user";
 
 const router = useRouter()
@@ -22,7 +21,8 @@ const handleLogin = async () => {
       password: password.value,
     })
 
-    await useUserStore().login(response.data.access_token, response.data.refresh_token)
+    const { access_token, refresh_token } = response.data.data
+    await useUserStore().login(access_token, refresh_token)
 
     if (rememberMe.value) {
       localStorage.setItem('remembered_email', email.value)
@@ -30,8 +30,9 @@ const handleLogin = async () => {
       localStorage.removeItem('remembered_email')
     }
     
-    // Ana sayfaya yönlendir
-    await router.push('/dashboard')
+    // Redirect parametresi varsa ona, yoksa dashboard'a yönlendir
+    const redirectPath = new URLSearchParams(window.location.search).get('redirect') || '/dashboard'
+    await router.push(redirectPath)
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Giriş yapılırken bir hata oluştu'
   } finally {

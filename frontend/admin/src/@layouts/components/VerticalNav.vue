@@ -65,7 +65,7 @@ const handleNavScroll = (evt: Event) => {
           />
 
           <h1 class="leading-normal">
-            sneat
+            Goftr Template
           </h1>
         </RouterLink>
       </slot>

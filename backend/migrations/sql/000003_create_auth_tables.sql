@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS tokens (
 );
 
 -- Token Blacklist tablosu
-CREATE TABLE IF NOT EXISTS token_blacklist (
+CREATE TABLE IF NOT EXISTS token_blacklists (
     id BIGSERIAL PRIMARY KEY,
     token TEXT NOT NULL,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,

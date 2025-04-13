@@ -47,8 +47,8 @@ func (r *Router) SetupRoutes() {
 	r.app.Use(logger.New())
 	r.app.Use(recover.New())
 	r.app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:63342, http://localhost:3005",
-		AllowMethods: "GET,POST,PUT,DELETE",
+		AllowOrigins: "http://localhost:63342,http://localhost:3005,http://localhost:5173",
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Content-Type, Authorization",
 	}))
 
