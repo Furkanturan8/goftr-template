@@ -5,10 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"goftr-v1/backend/config"
-	"goftr-v1/backend/internal/handler"
-	"goftr-v1/backend/internal/repository"
 	"goftr-v1/backend/internal/router"
-	"goftr-v1/backend/internal/service"
 	"goftr-v1/backend/pkg/cache"
 	"goftr-v1/backend/pkg/jwt"
 	"goftr-v1/backend/pkg/logger"
@@ -58,21 +55,7 @@ func main() {
 	}
 	logger.Info("Veritabanı bağlantısı başarılı")
 
-	// Repository'ler
-	userRepo := repository.NewUserRepository(db)
-	authRepo := repository.NewAuthRepository(db)
-
-	// Service'ler
-	authService := service.NewAuthService(authRepo, userRepo)
-	userService := service.NewUserService(userRepo)
-
-	// Handler'lar
-	authHandler := handler.NewAuthHandler(authService)
-	userHandler := handler.NewUserHandler(userService)
-
-	// Router'ı oluştur ve yapılandır
-	r := router.NewRouter(authHandler, userHandler)
-	r.Init(cfg)
+	r := router.NewRouter(db, cfg)
 	r.SetupRoutes()
 
 	// Graceful shutdown için kanal oluştur

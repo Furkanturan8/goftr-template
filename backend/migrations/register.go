@@ -30,7 +30,7 @@ func init() {
 			Up:      readSQLFile("000003_create_auth_tables.sql"),
 			Down: `
                 DROP TABLE IF EXISTS sessions CASCADE;
-                DROP TABLE IF EXISTS token_blacklist CASCADE;
+                DROP TABLE IF EXISTS token_blacklists CASCADE;
                 DROP TABLE IF EXISTS tokens CASCADE;
             `,
 		},

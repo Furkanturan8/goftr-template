@@ -1,9 +1,12 @@
 package router
 
 import (
+	"github.com/uptrace/bun"
 	"goftr-v1/backend/config"
 	"goftr-v1/backend/internal/handler"
 	"goftr-v1/backend/internal/middleware"
+	"goftr-v1/backend/internal/repository"
+	"goftr-v1/backend/internal/service"
 	"goftr-v1/backend/pkg/monitoring"
 	"time"
 
@@ -15,26 +18,23 @@ import (
 )
 
 type Router struct {
-	app         *fiber.App
-	authHandler *handler.AuthHandler
-	userHandler *handler.UserHandler
-	// Diğer handler'lar buraya eklenecek
-}
-
-func NewRouter(authHandler *handler.AuthHandler, userHandler *handler.UserHandler) *Router {
-	return &Router{
-		app:         fiber.New(),
-		authHandler: authHandler,
-		userHandler: userHandler,
-	}
+	app *fiber.App
+	db  *bun.DB
+	cfg *config.Config
 }
 
 var prometheusEndpoint string
 var prometheusEnabled bool
 
-func (r *Router) Init(cfg *config.Config) {
+func NewRouter(db *bun.DB, cfg *config.Config) *Router {
 	prometheusEnabled = cfg.MonitoringConfig.Prometheus.Enabled
 	prometheusEndpoint = cfg.MonitoringConfig.Prometheus.Endpoint
+
+	return &Router{
+		app: fiber.New(),
+		db:  db,
+		cfg: cfg,
+	}
 }
 
 func (r *Router) SetupRoutes() {
@@ -73,14 +73,26 @@ func (r *Router) SetupRoutes() {
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
 
+	// Repository'ler
+	userRepo := repository.NewUserRepository(r.db)
+	authRepo := repository.NewAuthRepository(r.db)
+
+	// Service'ler
+	authService := service.NewAuthService(authRepo, userRepo)
+	userService := service.NewUserService(userRepo)
+
+	// Handler'lar
+	authHandler := handler.NewAuthHandler(authService)
+	userHandler := handler.NewUserHandler(userService)
+
 	// Auth routes
 	auth := v1.Group("/auth")
-	auth.Post("/register", r.authHandler.Register)
-	auth.Post("/login", r.authHandler.Login)
-	auth.Post("/refresh", r.authHandler.RefreshToken)
-	auth.Post("/forgot-password", r.authHandler.ForgotPassword)
-	auth.Post("/reset-password", r.authHandler.ResetPassword)
-	auth.Post("/logout", middleware.AuthMiddleware(), r.authHandler.Logout)
+	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
+	auth.Post("/refresh", authHandler.RefreshToken)
+	auth.Post("/forgot-password", authHandler.ForgotPassword)
+	auth.Post("/reset-password", authHandler.ResetPassword)
+	auth.Post("/logout", middleware.AuthMiddleware(), authHandler.Logout)
 
 	// User routes - Base group
 	users := v1.Group("/users")
@@ -88,17 +100,17 @@ func (r *Router) SetupRoutes() {
 	// Normal user routes (profil yönetimi)
 	userProfile := users.Group("/me")
 	userProfile.Use(middleware.AuthMiddleware()) // Sadece authentication gerekli
-	userProfile.Get("/", r.userHandler.GetProfile)
-	userProfile.Put("/", r.userHandler.UpdateProfile)
+	userProfile.Get("/", userHandler.GetProfile)
+	userProfile.Put("/", userHandler.UpdateProfile)
 
 	// Admin only routes
 	adminUsers := users.Group("/")
 	adminUsers.Use(middleware.AuthMiddleware(), middleware.AdminOnly()) // Admin yetkisi gerekli
-	adminUsers.Post("/", r.userHandler.Create)
-	adminUsers.Get("/", r.userHandler.List)
-	adminUsers.Get("/:id", r.userHandler.GetByID)
-	adminUsers.Put("/:id", r.userHandler.Update)
-	adminUsers.Delete("/:id", r.userHandler.Delete)
+	adminUsers.Post("/", userHandler.Create)
+	adminUsers.Get("/", userHandler.List)
+	adminUsers.Get("/:id", userHandler.GetByID)
+	adminUsers.Put("/:id", userHandler.Update)
+	adminUsers.Delete("/:id", userHandler.Delete)
 
 	// Diğer route grupları buraya eklenecek
 }

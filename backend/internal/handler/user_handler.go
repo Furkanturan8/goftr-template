@@ -40,17 +40,10 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 
-	// todo dto.UserResponse{}.ToResponseModel denee!
 	users := make([]dto.UserResponse, len(resp))
+
 	for i, user := range resp {
-		users[i] = dto.UserResponse{
-			ID:        user.ID,
-			Email:     user.Email,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Role:      string(user.Role),
-			Status:    string(user.Status),
-		}
+		users[i] = dto.UserResponse{}.ToResponseModel(user)
 	}
 
 	return response.Success(c, users)
