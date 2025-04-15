@@ -7,6 +7,14 @@ import (
 	"github.com/uptrace/bun"
 )
 
+type IBaseRepository interface {
+	List(ctx context.Context, model interface{}, params *query.Params) error
+	Get(ctx context.Context, model interface{}, id int64) error
+	Create(ctx context.Context, model interface{}) error
+	Update(ctx context.Context, model interface{}) error
+	Delete(ctx context.Context, model interface{}, id int64) error
+}
+
 type BaseRepository struct {
 	db *bun.DB
 }
