@@ -8,7 +8,8 @@ const loading = ref(false)
 const error = ref('')
 
 const formData = ref({
-  name: '',
+  first_name: '',
+  last_name: '',
   email: '',
   password: '',
   passwordConfirm: '',
@@ -35,7 +36,7 @@ const handleRegister = async () => {
     await authService.register(registerData)
 
     // Kayıt başarılı, login sayfasına yönlendir
-    router.push('/login')
+    await router.push('/login')
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Kayıt olurken bir hata oluştu'
   } finally {
@@ -62,8 +63,16 @@ const handleRegister = async () => {
             <!-- Name -->
             <VCol cols="12">
               <VTextField
-                v-model="formData.name"
-                label="Ad Soyad"
+                v-model="formData.first_name"
+                label="Ad"
+                required
+              />
+            </VCol>
+            <!--surname-->
+            <VCol cols="12">
+              <VTextField
+                v-model="formData.last_name"
+                label="Soyad"
                 required
               />
             </VCol>

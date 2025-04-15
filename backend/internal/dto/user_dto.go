@@ -10,7 +10,7 @@ type CreateUserRequest struct {
 	LastName  string       `json:"last_name" validate:"required,max=100"`
 	Password  string       `json:"password" validate:"required,min=3,max=100"`
 	Status    model.Status `json:"status" validate:"omitempty,oneof=active inactive"`
-	Role      model.Role   `json:"role" validate:"required"`
+	Role      model.Role   `json:"role"`
 }
 
 func (dto CreateUserRequest) ToDBModel(m model.User) model.User {
@@ -20,7 +20,11 @@ func (dto CreateUserRequest) ToDBModel(m model.User) model.User {
 	if dto.Password != "" {
 		_ = m.SetPassword(dto.Password)
 	}
-	m.Role = dto.Role
+	if dto.Role == "" {
+		m.Role = model.UserRole
+	} else {
+		m.Role = dto.Role
+	}
 	if dto.Status == "" {
 		m.Status = model.StatusActive
 	} else {
