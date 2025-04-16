@@ -54,29 +54,10 @@ func (r *UserRepository) Create(ctx context.Context, user *model.User) error {
 }
 
 func (r *UserRepository) GetByID(ctx context.Context, id int64) (*model.User, error) {
-	cacheKey := fmt.Sprintf("%s%d", userCacheKeyPrefix, id)
-
-	// Önce cache'den kontrol et
-	var user model.User
-	err := cache.Get(ctx, cacheKey, &user)
-	if err == nil {
-		fmt.Printf("Kullanıcı (ID: %d) cache'den alındı\n", id)
-		return &user, nil
-	}
-
-	// Cache'de yoksa veritabanından al
-	user = model.User{}
-	err = r.db.NewSelect().Model(&user).Where("id = ?", id).Scan(ctx)
+	user := model.User{}
+	err := r.db.NewSelect().Model(&user).Where("id = ?", id).Scan(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	fmt.Printf("Kullanıcı (ID: %d) veritabanından alındı\n", id)
-
-	// Cache'e kaydet
-	if err = cache.Set(ctx, cacheKey, &user, userCacheDuration); err != nil {
-		// Cache hatası loglansın ama işlemi engellemeyecek
-		return &user, nil
 	}
 
 	return &user, nil

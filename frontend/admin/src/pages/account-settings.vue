@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useUserStore } from '@/store/user.ts'
+import {userService} from "@/services/ApiService";
 
 const route = useRoute()
 const userStore = useUserStore()
 
 const activeTab = ref(route.params.tab || 'account')
 const loading = ref(false)
+const isChangePassword = ref(false)
 
 // Form verilerini tanımlama
 const accountData = ref({
@@ -14,6 +16,8 @@ const accountData = ref({
   first_name: userStore.user?.first_name || '',
   last_name: userStore.user?.last_name || '',
   role: userStore.user?.role || '',
+  current_password: computed(() => isChangePassword.value ? passwordData.value.currentPassword : ''),
+  new_password: computed(() => isChangePassword.value ? passwordData.value.newPassword : '') // eğer değiştirmediyse boş olacak. Backendde zaten hallediyorum ben onu!
 })
 
 const passwordData = ref({
@@ -33,31 +37,27 @@ const onAccountSubmit = async () => {
   loading.value = true
   try {
     // Hesap bilgilerini güncelleme işlemi
-    await userStore.updateProfile(accountData.value)
-    // Başarılı mesajı göster
+    await userService.updateProfile(accountData.value)
+
+    if(isChangePassword.value) {
+      // Şifre değiştirildi, şimdi passwordData'yı sıfırla
+      passwordData.value = {
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      }
+      isChangePassword.value = false // İşlem tamamlandıktan sonra false yapıyoruz
+    }
   } catch (error) {
-    // Hata mesajı göster
+    console.log("err:",error)
   } finally {
     loading.value = false
   }
 }
 
 const onPasswordSubmit = async () => {
-  loading.value = true
-  try {
-    // Şifre değiştirme işlemi
-    await userStore.changePassword(passwordData.value)
-    passwordData.value = {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    }
-    // Başarılı mesajı göster
-  } catch (error) {
-    // Hata mesajı göster
-  } finally {
-    loading.value = false
-  }
+  isChangePassword.value = true
+  await onAccountSubmit()
 }
 
 const formattedRole = computed({

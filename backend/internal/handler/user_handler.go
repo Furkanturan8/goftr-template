@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"goftr-v1/backend/internal/dto"
 	"goftr-v1/backend/internal/model"
 	"goftr-v1/backend/internal/service"
@@ -113,8 +114,13 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	role := c.Locals("role").(model.Role)
 	status := c.Locals("status").(model.Status)
 
-	var req dto.CreateUserRequest
-	if err := c.BodyParser(&req); err != nil {
+	currentUser, err := h.service.GetByID(c.Context(), userID)
+	if err != nil {
+		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
+	}
+
+	var req dto.UpdateUserRequest
+	if err = c.BodyParser(&req); err != nil {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}
 
@@ -122,8 +128,27 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	user.ID = userID
 	user.Role = role
 	user.Status = status
+	fmt.Println("new:", req.NewPassword)
+	fmt.Println("cur:", req.CurrentPassword)
+	fmt.Println("db:", currentUser.Password)
 
-	if err := h.service.Update(c.Context(), userID, user); err != nil {
+	// Eğer şifre değiştirilmek isteniyorsa
+	if req.NewPassword != "" {
+		// Eski şifre doğrulaması zorunlu
+		if currentUser.CheckPassword(req.CurrentPassword) {
+			// Yeni şifre hashlenerek ayarlanır
+			_ = user.SetPassword(req.NewPassword)
+			fmt.Println("şifre değiştirildi")
+		} else {
+			user.Password = currentUser.Password
+			fmt.Println("hatalı şifre değiştirilmedi!")
+		}
+	} else if req.CurrentPassword == "" || req.NewPassword == "" {
+		fmt.Println("şifre değiştirilmedi!")
+		user.Password = currentUser.Password
+	}
+
+	if err = h.service.Update(c.Context(), userID, user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
 	}
 

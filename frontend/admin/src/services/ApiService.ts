@@ -84,13 +84,6 @@ export const authService = {
 export const userService = {
   getProfile: () => ApiService.get('/users/me'),
   updateProfile: (data: any) => ApiService.put('/users/me', data),
-  updateAvatar: (formData: FormData) => {
-    return ApiService.post('/users/me/avatar', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-  },
 
   // Admin only routes
   listUsers: () => ApiService.get('/users'),
