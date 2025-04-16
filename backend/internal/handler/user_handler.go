@@ -128,9 +128,6 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	user.ID = userID
 	user.Role = role
 	user.Status = status
-	fmt.Println("new:", req.NewPassword)
-	fmt.Println("cur:", req.CurrentPassword)
-	fmt.Println("db:", currentUser.Password)
 
 	// Eğer şifre değiştirilmek isteniyorsa
 	if req.NewPassword != "" {
