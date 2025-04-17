@@ -27,7 +27,11 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 	}
 
 	user := req.ToDBModel(model.User{})
-	_ = user.SetPassword("goftr-template-default-password-1907") // default password
+	if user.Password == "" { // when admin create a new user, password is empty. so we set default password
+		// maybe we can use a link to send a mail to the user to set a password
+		// todo: send email to user to set a password
+		_ = user.SetPassword("goftr-template-default-password-1907") // default password
+	}
 
 	if err := h.service.Create(c.Context(), user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
