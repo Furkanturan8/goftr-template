@@ -88,28 +88,28 @@ const orders = [
     title: 'Electronic',
     avatarColor: 'primary',
     subtitle: 'Mobile, Earbuds, TV',
-    avatarIcon: 'bx-mobile-alt',
+    avatarIcon: 'bx bx-mobile-alt',
   },
   {
     amount: '23.8k',
     title: 'Fashion',
     avatarColor: 'success',
     subtitle: 'Tshirt, Jeans, Shoes',
-    avatarIcon: 'bx-closet',
+    avatarIcon: 'bx bx-closet',
   },
   {
     amount: 849,
     title: 'Decor',
     avatarColor: 'info',
     subtitle: 'Fine Art, Dining',
-    avatarIcon: 'bx-home',
+    avatarIcon: 'bx bx-home',
   },
   {
     amount: 99,
     title: 'Sports',
     avatarColor: 'secondary',
     subtitle: 'Football, Cricket Kit',
-    avatarIcon: 'bx-football',
+    avatarIcon: 'bx bx-football',
   },
 ]
 

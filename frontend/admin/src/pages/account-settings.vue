@@ -28,8 +28,8 @@ const passwordData = ref({
 
 // tabs
 const tabs = [
-  { title: 'Hesap', icon: 'bx-user', tab: 'account' },
-  { title: 'Güvenlik', icon: 'bx-lock-alt', tab: 'security' },
+  { title: 'Hesap', icon: 'bx bx-user', tab: 'account' },
+  { title: 'Güvenlik', icon: 'bx bx-lock-alt', tab: 'security' },
 ]
 
 // Form gönderme işlemleri

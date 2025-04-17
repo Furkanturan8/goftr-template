@@ -18,7 +18,7 @@ const isOpen = ref(false)
       @click="isOpen = !isOpen"
     >
       <VIcon
-        :icon="item.icon || 'bxs-circle'"
+        :icon="item.icon || 'bx bxs-circle'"
         class="nav-item-icon"
       />
       <span class="nav-item-title">{{ item.title }}</span>
@@ -29,7 +29,7 @@ const isOpen = ref(false)
         {{ item.badgeContent }}
       </span>
       <VIcon
-        icon="bx-chevron-right"
+        icon="bx bx-chevron-right"
         class="nav-group-arrow"
       />
     </div>

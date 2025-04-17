@@ -87,9 +87,10 @@ export const userService = {
 
   // Admin only routes
   listUsers: () => ApiService.get('/users'),
+  createUser: (data: any) => ApiService.post('/users', data),
   getUserById: (id: string) => ApiService.get(`/users/${id}`),
-  updateUser: (id: string, data: any) => ApiService.put(`/users/${id}`, data),
-  deleteUser: (id: string) => ApiService.delete(`/users/${id}`),
+  updateUser: (id: number, data: any) => ApiService.put(`/users/${id}`, data),
+  deleteUser: (id: number) => ApiService.delete(`/users/${id}`),
 }
 
 export { ApiService }

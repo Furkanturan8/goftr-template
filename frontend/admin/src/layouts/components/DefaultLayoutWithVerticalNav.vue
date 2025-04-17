@@ -19,7 +19,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
           class="ms-n3 d-lg-none"
           @click="toggleVerticalOverlayNavActive(true)"
         >
-          <VIcon icon="bx-menu" />
+          <VIcon icon="bx bx-menu" />
         </IconBtn>
 
         <!-- todo: search kısmı yapılacak -->
@@ -30,8 +30,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
         >
           <!-- 👉 Search Trigger button -->
           <IconBtn>
-            <span style="margin-left: 20px">ara</span>
-            <VIcon icon="bx-search" />
+            <VIcon icon="bx bx-search" />
           </IconBtn>
 
           <span class="d-none d-md-flex align-center text-disabled ms-2">
@@ -69,7 +68,7 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
         class="d-block d-lg-none"
         @click="toggleIsOverlayNavActive(false)"
       >
-        <VIcon icon="bx-x" />
+        <VIcon icon="bx bx-x" />
       </IconBtn>
     </template>
 

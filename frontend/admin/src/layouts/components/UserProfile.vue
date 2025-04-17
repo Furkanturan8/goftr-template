@@ -71,7 +71,7 @@ const onLogout = async () => {
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="bx-user"
+                icon="bx bx-user"
                 size="22"
               />
             </template>
@@ -87,7 +87,7 @@ const onLogout = async () => {
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="bx-log-out"
+                icon="bx bx-log-out"
                 size="22"
               />
             </template>

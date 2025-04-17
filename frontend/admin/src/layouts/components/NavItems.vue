@@ -8,8 +8,16 @@ import VerticalNavSectionTitle from '@layouts/components/VerticalNavSectionTitle
   <VerticalNavLink
     :item="{
       title: 'Anasayfa',
-      icon: 'bx-home-smile',
+      icon: 'bx bx-home-smile',
       to: '/dashboard',
     }"
   />
+  <VerticalNavLink
+    :item="{
+      title: 'Kullanıcı İşlemleri',
+      icon: 'bx bx-user',
+      to: '/users',
+    }"
+  />
+
 </template>

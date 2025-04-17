@@ -241,8 +241,8 @@ const chartOptions = computed(() => {
 })
 
 const balanceData = [
-  { icon: 'bx-dollar', amount: '$2.54k', year: '2023', color: 'primary' },
-  { icon: 'bx-wallet', amount: '$4.21k', year: '2022', color: 'info' },
+  { icon: 'bx bx-dollar', amount: '$2.54k', year: '2023', color: 'primary' },
+  { icon: 'bx bx-wallet', amount: '$4.21k', year: '2022', color: 'info' },
 ]
 
 const moreList = [
@@ -289,7 +289,7 @@ const moreList = [
           <VBtn
             variant="tonal"
             class="mb-2"
-            append-icon="bx-chevron-down"
+            append-icon="bx bx-chevron-down"
           >
             2023
             <VMenu activator="parent">

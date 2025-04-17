@@ -12,7 +12,7 @@ const props = defineProps<Props>()
   <IconBtn>
     <VIcon
       :size="props.iconSize"
-      icon="bx-dots-vertical-rounded"
+      icon="bx bx-dots-vertical-rounded"
     />
 
     <VMenu

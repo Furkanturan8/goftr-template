@@ -203,7 +203,7 @@ const chartConfig = computed(() => {
           >
             <VIcon
               size="24"
-              icon="bx-chevron-up"
+              icon="bx bx-chevron-up"
             />
             {{ tabData.profitLoss }}%
           </span>

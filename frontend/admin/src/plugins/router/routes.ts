@@ -12,6 +12,10 @@ export const routes = [
         path: 'account-settings',
         component: () => import('@/pages/account-settings.vue'),
       },
+      {
+        path: 'users',
+        component: () => import('@/pages/user-actions.vue'),
+      }
     ],
   },
   {

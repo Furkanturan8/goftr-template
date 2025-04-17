@@ -27,6 +27,7 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 	}
 
 	user := req.ToDBModel(model.User{})
+	_ = user.SetPassword("goftr-template-default-password-1907") // default password
 
 	if err := h.service.Create(c.Context(), user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())
@@ -71,13 +72,33 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	var req dto.CreateUserRequest
+	currentUser, err := h.service.GetByID(c.Context(), id)
+	if err != nil {
+		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
+	}
+
+	var req dto.UpdateUserRequest
 	if err = c.BodyParser(&req); err != nil {
 		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
 	}
 
 	user := req.ToDBModel(model.User{})
 	user.ID = id
+	// Eğer şifre değiştirilmek isteniyorsa
+	if req.NewPassword != "" {
+		// Eski şifre doğrulaması zorunlu
+		if currentUser.CheckPassword(req.CurrentPassword) {
+			// Yeni şifre hashlenerek ayarlanır
+			_ = user.SetPassword(req.NewPassword)
+			fmt.Println("şifre değiştirildi")
+		} else {
+			user.Password = currentUser.Password
+			fmt.Println("hatalı şifre değiştirilmedi!")
+		}
+	} else if req.CurrentPassword == "" || req.NewPassword == "" {
+		fmt.Println("şifre değiştirilmedi!")
+		user.Password = currentUser.Password
+	}
 
 	if err = h.service.Update(c.Context(), id, user); err != nil {
 		return errorx.WithDetails(errorx.ErrInternal, err.Error())

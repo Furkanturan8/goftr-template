@@ -33,8 +33,8 @@ export default {
   VDataTable: {
     VPagination: {
       showFirstLastPage: true,
-      firstIcon: 'bx-chevrons-left',
-      lastIcon: 'bx-chevrons-right',
+      firstIcon: 'bx bx-chevrons-left',
+      lastIcon: 'bx bx-chevrons-right',
     },
   },
   VTable: {
@@ -45,8 +45,8 @@ export default {
   VDataTableServer: {
     VPagination: {
       showFirstLastPage: true,
-      firstIcon: 'bx-chevrons-left',
-      lastIcon: 'bx-chevrons-right',
+      firstIcon: 'bx bx-chevrons-left',
+      lastIcon: 'bx bx-chevrons-right',
     },
   },
   VList: {
@@ -121,7 +121,7 @@ export default {
     // set v-rating default color to primary
     activeColor: 'warning',
     color: 'disabled',
-    emptyIcon: 'bx-bxs-star',
+    emptyIcon: 'bx bx-bxs-star',
   },
   VProgressLinear: {
     height: 6,
@@ -172,7 +172,7 @@ export default {
     color: 'primary',
     hideDetails: 'auto',
     prependIcon: '',
-    prependInnerIcon: 'bx-link',
+    prependInnerIcon: 'bx bx-link',
   },
   VTextarea: {
     variant: 'outlined',

@@ -89,7 +89,7 @@ const chartOptions = computed(() => {
         <div>
           <div class="d-flex gap-1 align-center text-success">
             <VIcon
-              icon="bx-up-arrow-alt"
+              icon="bx bx-up-arrow-alt"
               size="20"
             />
             <span class="text-base d-inline-block">68.2%</span>
