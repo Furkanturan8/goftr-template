@@ -1,5 +1,6 @@
 // frontend admin paneli yapılacaklar
- -> base bir auth ve giriş sistemi
- -> admin paneli için bir anasayfa
- -> profile yönetim sayfası
- -> users sayfası
+ -> base bir auth ve giriş sistemi ✅
+ -> admin paneli için bir anasayfa ✅
+ -> profile yönetim sayfası ✅
+ -> users sayfası ✅
+ -> error, success, confirm mesajları için popup eklenecek
