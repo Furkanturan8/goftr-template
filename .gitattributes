@@ -1,0 +1,5 @@
+# SCSS dosyalarını dil istatistiklerinden dışla
+**/*.scss linguist-vendored
+
+# SCSS'leri dil analizinden çıkar
+assets/**/*.scss linguist-vendored
