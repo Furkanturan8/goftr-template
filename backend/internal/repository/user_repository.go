@@ -3,12 +3,10 @@ package repository
 import (
 	"context"
 	"fmt"
-	"goftr-v1/backend/internal/model"
-	"goftr-v1/backend/pkg/cache"
-
-	"time"
-
 	"github.com/uptrace/bun"
+	"goftr-template/backend/internal/model"
+	"goftr-template/backend/pkg/cache"
+	"time"
 )
 
 const (

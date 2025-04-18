@@ -4,11 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"goftr-v1/backend/pkg/errorx"
-	"goftr-v1/backend/pkg/logger"
-	"time"
-
 	"github.com/redis/go-redis/v9"
+	"goftr-template/backend/pkg/errorx"
+	"goftr-template/backend/pkg/logger"
+	"time"
 )
 
 type RedisCache struct {

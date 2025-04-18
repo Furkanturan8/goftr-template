@@ -1,13 +1,12 @@
 package tests
 
 import (
-	"goftr-v1/backend/config"
-	"goftr-v1/backend/internal/model"
-	"goftr-v1/backend/pkg/jwt"
+	"github.com/stretchr/testify/assert"
+	"goftr-template/backend/config"
+	"goftr-template/backend/internal/model"
+	"goftr-template/backend/pkg/jwt"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func setupJWTConfig() *config.JWTConfig {

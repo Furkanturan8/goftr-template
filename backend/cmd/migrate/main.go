@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"goftr-v1/backend/config"
-	"goftr-v1/backend/migrations"
+	"goftr-template/backend/config"
+	"goftr-template/backend/migrations"
 	"log"
 	"os"
 

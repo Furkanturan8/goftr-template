@@ -2,10 +2,9 @@ package repository
 
 import (
 	"context"
-	"goftr-v1/backend/internal/model"
-	"time"
-
 	"github.com/uptrace/bun"
+	"goftr-template/backend/internal/model"
+	"time"
 )
 
 type IAuthRepository interface {

@@ -1,11 +1,10 @@
 package tests
 
 import (
-	"goftr-v1/backend/internal/model"
+	"github.com/stretchr/testify/assert"
+	"goftr-template/backend/internal/model"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestUserCreation(t *testing.T) {

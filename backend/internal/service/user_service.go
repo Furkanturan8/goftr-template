@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"goftr-v1/backend/internal/model"
-	"goftr-v1/backend/internal/repository"
-	"goftr-v1/backend/pkg/errorx"
+	"goftr-template/backend/internal/model"
+	"goftr-template/backend/internal/repository"
+	"goftr-template/backend/pkg/errorx"
 )
 
 type UserService struct {

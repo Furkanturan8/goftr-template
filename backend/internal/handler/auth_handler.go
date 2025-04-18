@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"goftr-v1/backend/internal/dto"
-	"goftr-v1/backend/internal/model"
-	"goftr-v1/backend/internal/service"
-	"goftr-v1/backend/pkg/errorx"
-	"goftr-v1/backend/pkg/response"
+	"goftr-template/backend/internal/dto"
+	"goftr-template/backend/internal/model"
+	"goftr-template/backend/internal/service"
+	"goftr-template/backend/pkg/errorx"
+	"goftr-template/backend/pkg/response"
 	"time"
 
 	"github.com/go-playground/validator/v10"

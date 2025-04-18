@@ -1,13 +1,12 @@
 package tests
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestRateLimiting(t *testing.T) {

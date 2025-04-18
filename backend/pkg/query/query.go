@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"strings"
-
 	"github.com/uptrace/bun"
+	"strings"
 )
 
 // Sayfalama için varsayılan değerler

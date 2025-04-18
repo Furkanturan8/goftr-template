@@ -1,20 +1,19 @@
 package router
 
 import (
-	"github.com/uptrace/bun"
-	"goftr-v1/backend/config"
-	"goftr-v1/backend/internal/handler"
-	"goftr-v1/backend/internal/middleware"
-	"goftr-v1/backend/internal/repository"
-	"goftr-v1/backend/internal/service"
-	"goftr-v1/backend/pkg/monitoring"
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/uptrace/bun"
+	"goftr-template/backend/config"
+	"goftr-template/backend/internal/handler"
+	"goftr-template/backend/internal/middleware"
+	"goftr-template/backend/internal/repository"
+	"goftr-template/backend/internal/service"
+	"goftr-template/backend/pkg/monitoring"
+	"time"
 )
 
 type Router struct {

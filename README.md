@@ -73,7 +73,7 @@ Daha fazla bilgi için: [Frontend README](/frontend/README.md)
 
 ```bash
 git clone [repo-url]
-cd goftr-v1
+cd goftr-template
 ```
 
 2. Backend servislerini başlatın:

@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"goftr-v1/backend/internal/model"
-	"goftr-v1/backend/pkg/errorx"
-	"goftr-v1/backend/pkg/jwt"
+	"goftr-template/backend/internal/model"
+	"goftr-template/backend/pkg/errorx"
+	"goftr-template/backend/pkg/jwt"
 	"strings"
 )
 

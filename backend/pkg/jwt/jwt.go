@@ -3,11 +3,10 @@ package jwt
 import (
 	"errors"
 	"fmt"
-	"goftr-v1/backend/config"
-	"goftr-v1/backend/internal/model"
-	"time"
-
 	"github.com/golang-jwt/jwt/v5"
+	"goftr-template/backend/config"
+	"goftr-template/backend/internal/model"
+	"time"
 )
 
 var (
