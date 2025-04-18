@@ -44,7 +44,7 @@ Daha fazla bilgi için: [Backend README](/backend/README.md)
 
 Vue.js tabanlı modern ve responsive admin paneli. Frontend tasarımı [ThemeSelection](https://themeselection.com/)'ın Sneat admin template'i kullanılarak geliştirilmiştir.
 
-Özellikler:
+#### Özellikler:
 
 - Vue 3
 - Vuetify 3
@@ -54,6 +54,21 @@ Vue.js tabanlı modern ve responsive admin paneli. Frontend tasarımı [ThemeSel
 - TypeScript desteği
 - I18n desteği
 - Modern ve kullanıcı dostu arayüz
+
+#### Sayfalar 
+
+- Anasayfa 
+
+<img width="1440" alt="dashboard" src="https://github.com/user-attachments/assets/466b50d4-6a86-4759-a913-b261e5d8c388" />
+
+- Kullanıcı Yönetimi
+
+<img width="1440" alt="users" src="https://github.com/user-attachments/assets/c500bb82-fad9-44e9-938c-c2073fe17b32" />
+
+- Profil
+
+<img width="1440" alt="profile" src="https://github.com/user-attachments/assets/54e22bc4-bf4e-4d32-93cc-869ff8a868b7" />
+
 
 Daha fazla bilgi için: [Frontend README](/frontend/README.md)
 
@@ -80,6 +95,8 @@ cd goftr-template
 
 ```bash
 cd backend
+go mod init goftr-template/backend
+go mod tidy
 docker-compose up -d
 go run cmd/server/main.go
 ```

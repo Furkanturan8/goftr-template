@@ -57,7 +57,8 @@ git clone [repo-url]
 cd [proje-dizini]
 
 # Bağımlılıkları yükleme
-go mod download
+go mod init goftr-template/backend
+go mod tidy
 
 # Docker servisleri başlatma
 docker-compose up -d
