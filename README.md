@@ -1,7 +1,9 @@
 # GOFTR-TEMPLATE
 
 Bu projede Go ve Vue.js teknolojilerini kullanılmıştır. Modern bir web uygulamasında admin/manager için oluşturulmuş Admin Panelli full-stack projedir.
+
 Frontend kısmında şu an sadece Admin paneli yapılmıştır. Projede kullanıcı yönetimi, kimlik doğrulama ve yetkilendirme gibi temel özellikleri içermektedir.
+
 Backend kısmında frontend kodları da yazıp geliştirebilirsiniz. Frontend kısmında bir klasör oluşturup (client gibi) frontend kodlarını oraya yazabilirsiniz. 
 
 ## Proje Yapısı

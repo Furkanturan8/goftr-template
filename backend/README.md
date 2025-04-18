@@ -68,52 +68,58 @@ go run cmd/api/main.go
 
 ## 3. Yapılandırma
 
-### 3.1. Temel Yapılandırma (config/config.yaml)
+### 3.1. Temel Yapılandırma (.env)
 
-```yaml
-app:
-  name: "goftr-v1"
-  port: 3000
-  env: "development"
+```dotenv
+# App
+APP_NAME=goftr-v1
+APP_VERSION=1.0.0
+APP_ENV=development
+APP_PORT=3005
+APP_SHUTDOWN_TIMEOUT=10
+APP_LOG_DIR=./logs
 
-database:
-  host: "localhost"
-  port: 5432
-  user: "postgres"
-  password: "postgres"
-  name: "goftr"
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=goftr
+DB_SSLMODE=disable
 
-redis:
-  host: "localhost"
-  port: 6379
-  password: ""
-  db: 0
-  pool_size: 10
+# Other environments
+# Redis, JWT, Prometheus, Grafana etc
+# Check .env.example for more details
 ```
 
 ### 3.2. Docker Compose Yapılandırması
 
 ```yaml
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-      - redis
+ postgres:
+ image: postgres:15-alpine
+ container_name: goftr-postgres
+ environment:
+  - POSTGRES_USER=${DB_USER}
+  - POSTGRES_PASSWORD=${DB_PASSWORD}
+  - POSTGRES_DB=${DB_NAME}
+ ports:
+  - "${DB_PORT}:5432"
+ volumes:
+  - postgres_data:/var/lib/postgresql/data
+ networks:
+  - goftr-network
+ healthcheck:
+  test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+  interval: 5s
+  timeout: 5s
+  retries: 5
+ restart: unless-stopped
 
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: goftr
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
+ redis:
+  image: redis:7-alpine
+  ports:
+   - "6379:6379"
 ```
 
 ## 4. Temel Kullanım
@@ -217,33 +223,21 @@ Yukarıda kendimiz oluşturduğumuz dosyaları/kodları (model, dto, handler, se
 ```go
 
 func main(){
-  // Yapılandırmayı yükle
+	// Yapılandırmayı yükle
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Printf("Config yükleme hatası: %v", err)
 		os.Exit(1)
 	}
 
-  // Bazı fonxların initialize'ı yapılıyor
-  // Logger'ı başlat, Redis cache'i başlat, JWT yapılandırmasını başlat,  Database bağlantısı
+        // Bazı fonxların initialize'ı yapılıyor
+        // Logger'ı başlat, Redis cache'i başlat, JWT yapılandırmasını başlat,  Database bağlantısı
 
-  // Repository'ler
-	userRepo := repository.NewUserRepository(db)
-	authRepo := repository.NewAuthRepository(db)
-
-	// Service'ler
-	authService := service.NewAuthService(authRepo, userRepo)
-	userService := service.NewUserService(userRepo)
-
-	// Handler'lar
-	authHandler := handler.NewAuthHandler(authService)
-	userHandler := handler.NewUserHandler(userService)
-
-	// Router'ı oluştur ve yapılandır
-	r := router.NewRouter(authHandler, userHandler)
+  	// Router'ı oluştur ve yapılandır
+	r := router.NewRouter(db, cfg)
 	r.SetupRoutes()
 
-  // Graceful shutdown ve sunucu açılması/kapatılması kodları
+        // Graceful shutdown ve sunucu açılması/kapatılması kodları
 }
 
 ```
@@ -252,38 +246,53 @@ func main(){
 
 ```go
 type Router struct {
-	app         *fiber.App
-	authHandler *handler.AuthHandler
-	userHandler *handler.UserHandler
-	// Diğer handler'lar buraya eklenecek
+	app *fiber.App
+	db  *bun.DB
+	cfg *config.Config
 }
 
-func NewRouter(authHandler *handler.AuthHandler, userHandler *handler.UserHandler) *Router {
+func NewRouter(db *bun.DB, cfg *config.Config) *Router {
 	return &Router{
-		app:         fiber.New(),
-		authHandler: authHandler,
-		userHandler: userHandler,
+		app: fiber.New(),
+		db:  db,
+		cfg: cfg,
 	}
 }
 
 func (r *Router) SetupRoutes() {
-  // Middleware'leri ekle
+	// Middleware'leri ekle
 	r.app.Use(logger.New())
 	r.app.Use(recover.New())
-	r.app.Use(cors.New())
+	r.app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:63342,http://localhost:3005,http://localhost:5173",
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders: "Content-Type, Authorization",
+	}))
 
 	// API versiyonu
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
 
+	// Repository'ler
+	userRepo := repository.NewUserRepository(r.db)
+	authRepo := repository.NewAuthRepository(r.db)
+	
+	// Service'ler
+	authService := service.NewAuthService(authRepo, userRepo)
+	userService := service.NewUserService(userRepo)
+	
+	// Handler'lar
+	authHandler := handler.NewAuthHandler(authService)
+	userHandler := handler.NewUserHandler(userService)
+	
 	// Auth routes
 	auth := v1.Group("/auth")
-	auth.Post("/register", r.authHandler.Register)
-	auth.Post("/login", r.authHandler.Login)
-	auth.Post("/refresh", r.authHandler.RefreshToken)
-	auth.Post("/forgot-password", r.authHandler.ForgotPassword)
-	auth.Post("/reset-password", r.authHandler.ResetPassword)
-	auth.Post("/logout", middleware.AuthMiddleware(), r.authHandler.Logout)
+	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
+	auth.Post("/refresh", authHandler.RefreshToken)
+	auth.Post("/forgot-password", authHandler.ForgotPassword)
+	auth.Post("/reset-password", authHandler.ResetPassword)
+	auth.Post("/logout", middleware.AuthMiddleware(), authHandler.Logout)
 
 	// User routes - Base group
 	users := v1.Group("/users")
@@ -291,17 +300,17 @@ func (r *Router) SetupRoutes() {
 	// Normal user routes (profil yönetimi)
 	userProfile := users.Group("/me")
 	userProfile.Use(middleware.AuthMiddleware()) // Sadece authentication gerekli
-	userProfile.Get("/", r.userHandler.GetProfile)
-	userProfile.Put("/", r.userHandler.UpdateProfile)
-
+	userProfile.Get("/", userHandler.GetProfile)
+	userProfile.Put("/", userHandler.UpdateProfile)
+	
 	// Admin only routes
 	adminUsers := users.Group("/")
 	adminUsers.Use(middleware.AuthMiddleware(), middleware.AdminOnly()) // Admin yetkisi gerekli
-	adminUsers.Post("/", r.userHandler.Create)
-	adminUsers.Get("/", r.userHandler.List)
-	adminUsers.Get("/:id", r.userHandler.GetByID)
-	adminUsers.Put("/:id", r.userHandler.Update)
-	adminUsers.Delete("/:id", r.userHandler.Delete)
+	adminUsers.Post("/", userHandler.Create)
+	adminUsers.Get("/", userHandler.List)
+	adminUsers.Get("/:id", userHandler.GetByID)
+	adminUsers.Put("/:id", userHandler.Update)
+	adminUsers.Delete("/:id", userHandler.Delete)
 
 	// Diğer route grupları buraya eklenecek
 }
