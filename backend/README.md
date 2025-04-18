@@ -57,7 +57,7 @@ git clone [repo-url]
 cd [proje-dizini]
 
 # Bağımlılıkları yükleme
-go mod init goftr-template/backend
+go mod init github.com/Furkanturan8/goftr-template
 go mod tidy
 
 # Docker servisleri başlatma

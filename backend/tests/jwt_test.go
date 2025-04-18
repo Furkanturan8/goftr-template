@@ -1,10 +1,10 @@
 package tests
 
 import (
+	"github.com/Furkanturan8/goftr-template/config"
+	"github.com/Furkanturan8/goftr-template/internal/model"
+	"github.com/Furkanturan8/goftr-template/pkg/jwt"
 	"github.com/stretchr/testify/assert"
-	"goftr-template/backend/config"
-	"goftr-template/backend/internal/model"
-	"goftr-template/backend/pkg/jwt"
 	"testing"
 	"time"
 )

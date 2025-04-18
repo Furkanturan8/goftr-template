@@ -5,14 +5,13 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"goftr-template/backend/config"
-	"goftr-template/backend/migrations"
-	"log"
-	"os"
-
+	"github.com/Furkanturan8/goftr-template/config"
+	"github.com/Furkanturan8/goftr-template/migrations"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
+	"log"
+	"os"
 )
 
 /*

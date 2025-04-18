@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"goftr-template/backend/internal/model"
-	"goftr-template/backend/internal/repository"
-	"goftr-template/backend/pkg/errorx"
-	"goftr-template/backend/pkg/jwt"
+	"github.com/Furkanturan8/goftr-template/internal/model"
+	"github.com/Furkanturan8/goftr-template/internal/repository"
+	"github.com/Furkanturan8/goftr-template/pkg/errorx"
+	"github.com/Furkanturan8/goftr-template/pkg/jwt"
 	"time"
 )
 

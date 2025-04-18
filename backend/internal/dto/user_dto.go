@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"goftr-template/backend/internal/model"
+	"github.com/Furkanturan8/goftr-template/internal/model"
 )
 
 type CreateUserRequest struct {

@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
+	"github.com/Furkanturan8/goftr-template/internal/model"
 	"github.com/uptrace/bun"
-	"goftr-template/backend/internal/model"
 	"time"
 )
 

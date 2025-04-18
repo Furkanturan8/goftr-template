@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
+	"github.com/Furkanturan8/goftr-template/pkg/query"
 	"github.com/uptrace/bun"
-	"goftr-template/backend/pkg/query"
 )
 
 type IBaseRepository interface {

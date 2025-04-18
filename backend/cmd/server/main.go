@@ -4,20 +4,19 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"goftr-template/backend/config"
-	"goftr-template/backend/internal/router"
-	"goftr-template/backend/pkg/cache"
-	"goftr-template/backend/pkg/jwt"
-	"goftr-template/backend/pkg/logger"
+	"github.com/Furkanturan8/goftr-template/config"
+	"github.com/Furkanturan8/goftr-template/internal/router"
+	"github.com/Furkanturan8/goftr-template/pkg/cache"
+	"github.com/Furkanturan8/goftr-template/pkg/jwt"
+	"github.com/Furkanturan8/goftr-template/pkg/logger"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 )
 
 func main() {

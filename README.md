@@ -95,7 +95,7 @@ cd goftr-template
 
 ```bash
 cd backend
-go mod init goftr-template/backend
+go mod init github.com/Furkanturan8/goftr-template
 go mod tidy
 docker-compose up -d
 go run cmd/server/main.go

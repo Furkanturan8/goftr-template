@@ -2,11 +2,11 @@ package handler
 
 import (
 	"fmt"
-	"goftr-template/backend/internal/dto"
-	"goftr-template/backend/internal/model"
-	"goftr-template/backend/internal/service"
-	"goftr-template/backend/pkg/errorx"
-	"goftr-template/backend/pkg/response"
+	"github.com/Furkanturan8/goftr-template/internal/dto"
+	"github.com/Furkanturan8/goftr-template/internal/model"
+	"github.com/Furkanturan8/goftr-template/internal/service"
+	"github.com/Furkanturan8/goftr-template/pkg/errorx"
+	"github.com/Furkanturan8/goftr-template/pkg/response"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"

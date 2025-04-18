@@ -1,15 +1,14 @@
 package handler
 
 import (
-	"goftr-template/backend/internal/dto"
-	"goftr-template/backend/internal/model"
-	"goftr-template/backend/internal/service"
-	"goftr-template/backend/pkg/errorx"
-	"goftr-template/backend/pkg/response"
-	"time"
-
+	"github.com/Furkanturan8/goftr-template/internal/dto"
+	"github.com/Furkanturan8/goftr-template/internal/model"
+	"github.com/Furkanturan8/goftr-template/internal/service"
+	"github.com/Furkanturan8/goftr-template/pkg/errorx"
+	"github.com/Furkanturan8/goftr-template/pkg/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"time"
 )
 
 type AuthHandler struct {

@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/Furkanturan8/goftr-template/internal/model"
+	"github.com/Furkanturan8/goftr-template/pkg/cache"
 	"github.com/uptrace/bun"
-	"goftr-template/backend/internal/model"
-	"goftr-template/backend/pkg/cache"
 	"time"
 )
 

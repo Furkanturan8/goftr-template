@@ -3,9 +3,9 @@ package jwt
 import (
 	"errors"
 	"fmt"
+	"github.com/Furkanturan8/goftr-template/config"
+	"github.com/Furkanturan8/goftr-template/internal/model"
 	"github.com/golang-jwt/jwt/v5"
-	"goftr-template/backend/config"
-	"goftr-template/backend/internal/model"
 	"time"
 )
 

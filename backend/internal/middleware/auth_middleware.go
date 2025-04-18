@@ -1,10 +1,11 @@
 package middleware
 
 import (
+	"github.com/Furkanturan8/goftr-template/internal/model"
+	"github.com/Furkanturan8/goftr-template/pkg/errorx"
+	"github.com/Furkanturan8/goftr-template/pkg/jwt"
 	"github.com/gofiber/fiber/v2"
-	"goftr-template/backend/internal/model"
-	"goftr-template/backend/pkg/errorx"
-	"goftr-template/backend/pkg/jwt"
+
 	"strings"
 )
 

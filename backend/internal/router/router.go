@@ -1,18 +1,18 @@
 package router
 
 import (
+	"github.com/Furkanturan8/goftr-template/config"
+	"github.com/Furkanturan8/goftr-template/internal/handler"
+	"github.com/Furkanturan8/goftr-template/internal/middleware"
+	"github.com/Furkanturan8/goftr-template/internal/repository"
+	"github.com/Furkanturan8/goftr-template/internal/service"
+	"github.com/Furkanturan8/goftr-template/pkg/monitoring"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/uptrace/bun"
-	"goftr-template/backend/config"
-	"goftr-template/backend/internal/handler"
-	"goftr-template/backend/internal/middleware"
-	"goftr-template/backend/internal/repository"
-	"goftr-template/backend/internal/service"
-	"goftr-template/backend/pkg/monitoring"
 	"time"
 )
 

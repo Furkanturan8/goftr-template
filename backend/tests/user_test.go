@@ -1,8 +1,8 @@
 package tests
 
 import (
+	"github.com/Furkanturan8/goftr-template/internal/model"
 	"github.com/stretchr/testify/assert"
-	"goftr-template/backend/internal/model"
 	"testing"
 	"time"
 )
