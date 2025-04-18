@@ -4,7 +4,7 @@ Bu projede Go ve Vue.js teknolojilerini kullanılmıştır. Modern bir web uygul
 
 Frontend kısmında şu an sadece Admin paneli yapılmıştır. Projede kullanıcı yönetimi, kimlik doğrulama ve yetkilendirme gibi temel özellikleri içermektedir.
 
-Backend kısmında frontend kodları da yazıp geliştirebilirsiniz. Frontend kısmında bir klasör oluşturup (client gibi) frontend kodlarını oraya yazabilirsiniz. 
+Backend kısmında frontend kodları da yazıp geliştirebilirsiniz. Frontend kısmında bir klasör oluşturup (client gibi) frontend kodlarını oraya yazabilirsiniz.
 
 ## Proje Yapısı
 
@@ -18,13 +18,25 @@ Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmiş REST AP
 
 - Go 1.21+
 - Fiber web framework
-- PostgreSQL veritabanı
+- PostgreSQL veritabanı (Bun ORM ile)
 - Redis önbellek sistemi
 - JWT tabanlı kimlik doğrulama
 - Clean Architecture
-- Docker desteği
-- Otomatik kod üretme araçları
+- Docker ve Docker Compose desteği
+- Prometheus ve Grafana ile monitoring
+- Otomatik kod üretme araçları (generate-structure.sh)
+- Otomatik mock veri üretme araçları (generate-mock.sh)
 - Detaylı loglama sistemi
+- Graceful shutdown desteği
+- Middleware yapısı
+  - CORS
+  - Rate Limiting
+  - JWT Authentication
+  - Request Logging
+- Hata yönetimi (custom error handling)
+- Database migration sistemi
+- Test altyapısı
+- API dokümantasyonu
 
 Daha fazla bilgi için: [Backend README](/backend/README.md)
 
