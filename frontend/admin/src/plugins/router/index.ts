@@ -13,6 +13,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const publicPages = ['/login', '/register']
+  const privatePages = ['/users']
+  const isPrivatePage = privatePages.some(path => to.path.startsWith(path))
   const authRequired = !publicPages.includes(to.path)
 
   if (authRequired && !userStore.isAuthenticated) {
@@ -20,6 +22,10 @@ router.beforeEach((to, from, next) => {
     const urlParams = new URLSearchParams()
     urlParams.set('redirect', redirect)
     return next(`/login?${urlParams.toString()}`)
+  }
+
+  if (isPrivatePage && userStore.getRole() !== 'admin') {
+    return next('/404')  // veya '/dashboard'
   }
 
   next()
