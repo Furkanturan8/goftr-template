@@ -141,7 +141,7 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 		return errorx.ErrInvalidRequest
 	}
 
-	// TODO: Send email with reset token
+	// TODO: Burada emaile doğrulama kodu gönderilecek password reset için (add: pkg-> email-service)
 	// For development, return the token
 	return response.Success(c, resetToken, "Password reset instructions have been sent to your email")
 }

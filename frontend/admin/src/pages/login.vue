@@ -3,7 +3,10 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/services/ApiService'
 import {useUserStore} from "@/store/user";
+import {emailRule} from "@/utils/validation";
+import {errorPopup, resetPasswordPopup, successPopup} from "@/utils/popup";
 
+const resetToken = ref('')
 const router = useRouter()
 const email = ref('')
 const password = ref('')
@@ -46,6 +49,46 @@ const loadRememberedEmail = () => {
   if (rememberedEmail) {
     email.value = rememberedEmail
     rememberMe.value = true
+  }
+}
+
+const submitForgotPassword = async () => {
+  if (emailRule(email.value) !== true) {
+    await errorPopup('Hata!','Lütfen geçerli bir e-posta adresi girin.')
+    return
+  }
+
+  loading.value = true
+  try {
+    const res = await authService.forgotPassword({ email: email.value })
+    resetToken.value = res.data?.data || ''
+
+    const result = await resetPasswordPopup(
+      'Yeni Şifre Belirle',
+      'Yeni şifrenizi girin',
+      'Yeni şifrenizi tekrar girin'
+    )
+
+    if (!result) return
+
+    const { input1: newPassword, input2: newPasswordConfirm } = result
+
+    if (newPassword !== newPasswordConfirm) {
+      await errorPopup('Hata!','Şifreler eşleşmiyor!')
+      return
+    }
+
+    await authService.resetPassword({
+      new_password: newPassword,
+      token: resetToken.value,
+    })
+
+    await successPopup('Başarılı!', 'Şifreniz başarıyla değiştirildi!', 'success')
+
+  } catch (err: any) {
+    alert(err.response?.data?.message || 'Lütfen geçerli emailinizi giriniz!')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -96,7 +139,7 @@ loadRememberedEmail()
               />
             </VCol>
 
-            <!-- Remember me -->
+            <!-- Remember me and forgot password -->
             <VCol
               cols="12"
               class="d-flex justify-space-between flex-wrap gap-3"
@@ -105,13 +148,14 @@ loadRememberedEmail()
                 v-model="rememberMe"
                 label="Beni hatırla"
               />
-              
-              <RouterLink
-                to="/forgot-password"
+
+              <VBtn
                 class="text-primary ms-2 mb-1"
+                variant="text"
+                @click="submitForgotPassword"
               >
                 Şifremi unuttum
-              </RouterLink>
+              </VBtn>
             </VCol>
 
             <!-- Error -->

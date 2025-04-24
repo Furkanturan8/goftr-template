@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import {userService} from "@/services/ApiService";
 import {required, emailRule} from "@/utils/validation";
+import {confirmPopup, errorPopup, successPopup} from "@/utils/popup";
 
 interface User {
   id: number
@@ -54,6 +55,7 @@ const fetchUsers = async () => {
     const data = await userService.listUsers()
     users.value = data.data.data
   } catch (error) {
+    await errorPopup('Hata!', 'Kullanıcılar yüklenirken hata oluştu.')
     console.error('Kullanıcılar yüklenirken hata oluştu:', error)
   } finally {
     loading.value = false
@@ -72,7 +74,8 @@ const editItem = (id: number) => {
 }
 
 const deleteItem = async (id: number) => {
-  if (confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
+  const result = await confirmPopup('Emin Misin?','Bu kullanıcıyı silmek istediğinizden emin misiniz?')
+  if (result) {
     try {
       await userService.deleteUser(id)
       const index = users.value.findIndex(user => user.id === id)
@@ -80,9 +83,10 @@ const deleteItem = async (id: number) => {
         users.value.splice(index, 1)
       }
     } catch (error) {
-      console.error('Kullanıcı silinirken hata oluştu:', error)
+      await errorPopup('Hata!','Kullanıcı silinirken hata oluştu.')
     }
   }
+  await successPopup('Başarılı','Kullanıcı başarıyla silindi.')
   await fetchUsers()
 }
 
@@ -96,16 +100,17 @@ const save = async () => {
   try {
     if (editedIndex.value > -1) {
       // Güncelleme işlemi
-      const response = await userService.updateUser(editedItem.value.id, editedItem.value)
-      console.log(response.data.message)
+      await userService.updateUser(editedItem.value.id, editedItem.value)
+      close()
+      await successPopup('Başarılı','Kullanıcı başarıyla güncellendi.')
     } else {
       // Yeni kullanıcı ekleme
-      const response = await userService.createUser(editedItem.value)
-      console.log(response.data.message)
+      await userService.createUser(editedItem.value)
+      close()
+      await successPopup('Başarılı','Kullanıcı başarıyla eklendi.')
     }
-    close()
   } catch (error) {
-    console.error('Kullanıcı kaydedilirken hata oluştu:', error)
+    await errorPopup('Hata!','Kullanıcı kaydedilirken hata oluştu.')
   }
   await fetchUsers()
 }

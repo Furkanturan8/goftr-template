@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useUserStore } from '@/store/user.ts'
 import {userService} from "@/services/ApiService";
 import {emailRule, passwordAgainVAL, passwordVAL, required} from '@/utils/validation';
+import {errorPopup} from "@/utils/popup";
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -50,6 +51,7 @@ const onAccountSubmit = async () => {
       isChangePassword.value = false // İşlem tamamlandıktan sonra false yapıyoruz
     }
   } catch (error) {
+    await errorPopup('Hata!','Profil bilgileri güncellenirken bir hata oluştu.')
     console.log("err:",error)
   } finally {
     loading.value = false
