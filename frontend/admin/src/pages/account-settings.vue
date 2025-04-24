@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useUserStore } from '@/store/user.ts'
 import {userService} from "@/services/ApiService";
+import {emailRule, passwordAgainVAL, passwordVAL, required} from '@/utils/validation';
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -102,10 +103,7 @@ const formattedRole = computed({
                     v-model="accountData.email"
                     label="E-posta"
                     placeholder="E-posta adresinizi girin"
-                    :rules="[
-                      v => !!v || 'E-posta gerekli',
-                      v => /.+@.+\..+/.test(v) || 'Geçerli bir e-posta adresi girin'
-                    ]"
+                    :rules="[required,emailRule]"
                   />
                 </VCol>
 
@@ -114,6 +112,7 @@ const formattedRole = computed({
                     v-model="accountData.first_name"
                     label="Ad"
                     placeholder="Adınızı girin"
+                    :rules="[required]"
                   />
                 </VCol>
                 <VCol cols="12" md="6">
@@ -121,6 +120,7 @@ const formattedRole = computed({
                     v-model="accountData.last_name"
                     label="Soyad"
                     placeholder="Soyadınızı girin"
+                    :rules="[required]"
                   />
                 </VCol>
                 <VCol cols="12" md="6">
@@ -169,10 +169,7 @@ const formattedRole = computed({
                     label="Yeni Şifre"
                     type="password"
                     placeholder="Yeni şifrenizi girin"
-                    :rules="[
-                      v => !!v || 'Yeni şifre gerekli',
-                      v => v.length >= 8 || 'Şifre en az 8 karakter olmalı'
-                    ]"
+                    :rules="passwordVAL"
                   />
                 </VCol>
 
@@ -182,10 +179,7 @@ const formattedRole = computed({
                     label="Şifre Tekrar"
                     type="password"
                     placeholder="Yeni şifrenizi tekrar girin"
-                    :rules="[
-                      v => !!v || 'Şifre tekrarı gerekli',
-                      v => v === passwordData.newPassword || 'Şifreler eşleşmiyor'
-                    ]"
+                    :rules="passwordAgainVAL(passwordData.newPassword)"
                   />
                 </VCol>
 

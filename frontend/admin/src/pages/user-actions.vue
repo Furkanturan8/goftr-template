@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import {userService} from "@/services/ApiService";
+import {required, emailRule} from "@/utils/validation";
 
 interface User {
   id: number
@@ -17,6 +18,7 @@ const dialog = ref(false)
 const editedIndex = ref(-1)
 const search = ref('')
 const { width } = useWindowSize()
+const formRef = ref()
 
 const editedItem = ref<User>({
   id: 0,
@@ -32,7 +34,7 @@ const defaultItem: User = {
   first_name: '',
   last_name: '',
   email: '',
-  role: '',
+  role: 'user',
   status: 'active',
 }
 
@@ -86,6 +88,11 @@ const deleteItem = async (id: number) => {
 
 
 const save = async () => {
+  const { valid } = await formRef.value.validate()
+
+  if (!valid) {
+    return
+  }
   try {
     if (editedIndex.value > -1) {
       // Güncelleme işlemi
@@ -160,12 +167,13 @@ onMounted(() => {
         <!-- Status sütunu için özel render -->
         <template #item.status="{ item }">
           <VChip
-            :color="item.status === 'active' ? 'success' : 'error'"
+            :color="item.status === 'active' ? 'success' : item.status === 'banned' ? 'error' : 'warning'"
             size="small"
           >
-            {{ item.status === 'active' ? 'Aktif' : 'Pasif' }}
+            {{ item.status === 'active' ? 'Aktif' : item.status === 'banned' ? 'Banlı' : 'Pasif' }}
           </VChip>
         </template>
+
 
         <!-- İşlemler sütunu için özel render -->
         <template #item.actions="{ item }">
@@ -207,68 +215,72 @@ onMounted(() => {
         </VCardTitle>
 
         <VCardText>
-          <VContainer>
-            <VRow>
-              <VCol
-                cols="12"
-                sm="6"
-              >
-                <VTextField
-                  v-model="editedItem.first_name"
-                  label="İsim"
-                />
-              </VCol>
-              <VCol
-                cols="12"
-                sm="6"
-              >
-                <VTextField
-                  v-model="editedItem.last_name"
-                  label="Soyisim"
-                />
-              </VCol>
-              <VCol
-                cols="12"
-                sm="12"
-              >
-                <VTextField
-                  v-model="editedItem.email"
-                  label="E-posta"
-                  type="email"
-                  :rules="[
-                      v => !!v || 'E-posta gerekli',
-                      v => /.+@.+\..+/.test(v) || 'Geçerli bir e-posta adresi girin'
-                    ]"
-                />
-              </VCol>
-              <VCol
-                cols="12"
-                sm="6"
-              >
+          <VForm ref="formRef" v-slot="{ isValid }">
+            <VContainer>
+              <VRow>
+                <VCol
+                  cols="12"
+                  sm="6"
+                >
+                  <VTextField
+                    v-model="editedItem.first_name"
+                    label="İsim"
+                    :rules="[required]"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="6"
+                >
+                  <VTextField
+                    v-model="editedItem.last_name"
+                    label="Soyisim"
+                    :rules="[required]"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="12"
+                >
+                  <VTextField
+                    v-model="editedItem.email"
+                    label="E-posta"
+                    type="email"
+                    :rules="[required,emailRule]"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="6"
+                >
 
-                <VSelect
-                  v-model="editedItem.status"
-                  :items="[
-                    { title: 'Aktif', value: 'active' },
-                    { title: 'Pasif', value: 'inactive' }
-                  ]"
-                  item-title="title"
-                  item-value="value"
-                  label="Durum"
-                />
-              </VCol>
-              <VCol
-                cols="12"
-                sm="6"
-              >
-                <VSelect
-                  v-model="editedItem.role"
-                  :items="['admin', 'user']"
-                  label="Rol"
-                />
-              </VCol>
-            </VRow>
-          </VContainer>
+                  <VSelect
+                    v-model="editedItem.status"
+                    :items="[
+                      { title: 'Aktif', value: 'active' },
+                      { title: 'Pasif', value: 'inactive' },
+                      { title: 'Banlı', value: 'banned' },
+                    ]"
+                    item-title="title"
+                    item-value="value"
+                    label="Durum"
+                    :rules="[required]"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="6"
+                >
+                  <VSelect
+                    v-model="editedItem.role"
+                    :items="['admin', 'user']"
+                    label="Rol"
+                    :rules="[required]"
+                  />
+                </VCol>
+              </VRow>
+            </VContainer>
+          </VForm>
         </VCardText>
 
         <VCardActions>
