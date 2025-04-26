@@ -236,7 +236,7 @@ func New${MODEL_NAME}Service(repo repository.I${MODEL_NAME}Repository) *${MODEL_
 }
 
 func (s *${MODEL_NAME}Service) Create(ctx context.Context, ${LOWER_MODEL_NAME} *model.${MODEL_NAME}) error {
-    if err := s.${LOWER_MODEL_NAME}repo.Create(ctx, ${LOWER_MODEL_NAME}); err != nil {
+    if err := s.${LOWER_MODEL_NAME}Repo.Create(ctx, ${LOWER_MODEL_NAME}); err != nil {
         return errorx.Wrap(errorx.ErrDatabaseOperation, err)
     }
     return nil
