@@ -6,13 +6,12 @@ import (
 
 // Token modeli
 type Token struct {
-	ID           int64     `json:"id" bun:",pk,autoincrement"`
+	BaseModel `bun:"table:tokens"`
+
 	UserID       int64     `json:"user_id" bun:",notnull"`
 	AccessToken  string    `json:"access_token" bun:",notnull"`
 	RefreshToken string    `json:"refresh_token" bun:",notnull"`
 	ExpiresAt    time.Time `json:"expires_at" bun:",notnull"`
-	CreatedAt    time.Time `json:"created_at" bun:",nullzero,notnull,default:current_timestamp"`
-	UpdatedAt    time.Time `json:"updated_at" bun:",nullzero,notnull,default:current_timestamp"`
 	RevokedAt    time.Time `json:"revoked_at,omitempty" bun:",nullzero"`
 	User         *User     `json:"user,omitempty" bun:"rel:belongs-to,join:user_id=id"`
 }
