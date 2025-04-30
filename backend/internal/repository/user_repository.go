@@ -111,7 +111,7 @@ func (r *UserRepository) Delete(ctx context.Context, id int64) error {
 }
 
 func (r *UserRepository) UpdateLastLogin(ctx context.Context, id int64) error {
-	user := &model.User{ID: id}
+	user := &model.User{BaseModel: model.BaseModel{ID: id}}
 	_, err := r.db.NewUpdate().
 		Model(user).
 		Column("last_login").
