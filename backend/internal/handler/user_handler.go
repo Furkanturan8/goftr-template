@@ -23,7 +23,7 @@ func NewUserHandler(s *service.UserService) *UserHandler {
 func (h *UserHandler) Create(c *fiber.Ctx) error {
 	var req dto.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
-		return errorx.ErrInvalidRequest
+		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
 	user := req.ToDBModel(model.User{})
@@ -34,7 +34,7 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.Create(c.Context(), user); err != nil {
-		return errorx.WithDetails(errorx.ErrInternal, err.Error())
+		return errorx.WrapErr(errorx.ErrInternal, err)
 	}
 
 	return response.Success(c, nil, "Kullanıcı başarıyla oluşturuldu")
@@ -43,7 +43,7 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 func (h *UserHandler) List(c *fiber.Ctx) error {
 	resp, err := h.service.List(c.Context())
 	if err != nil {
-		return errorx.WithDetails(errorx.ErrInternal, err.Error())
+		return errorx.WrapErr(errorx.ErrInternal, err)
 	}
 
 	users := make([]dto.UserResponse, len(resp))
@@ -58,12 +58,12 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {
-		return errorx.ErrInvalidRequest
+		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
 	resp, err := h.service.GetByID(c.Context(), id)
 	if err != nil {
-		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
+		return errorx.WrapMsg(errorx.ErrNotFound, "Kullanıcı Bulunamadı!")
 	}
 
 	user := dto.UserResponse{}.ToResponseModel(*resp)
@@ -73,17 +73,17 @@ func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 func (h *UserHandler) Update(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {
-		return errorx.ErrInvalidRequest
+		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
 	currentUser, err := h.service.GetByID(c.Context(), id)
 	if err != nil {
-		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
+		return errorx.WrapMsg(errorx.ErrNotFound, "Kullanıcı Bulunamadı!")
 	}
 
 	var req dto.UpdateUserRequest
 	if err = c.BodyParser(&req); err != nil {
-		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
+		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
 	user := req.ToDBModel(model.User{})
@@ -105,7 +105,7 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 	}
 
 	if err = h.service.Update(c.Context(), id, user); err != nil {
-		return errorx.WithDetails(errorx.ErrInternal, err.Error())
+		return errorx.WrapErr(errorx.ErrInternal, err)
 	}
 
 	return response.Success(c, nil, "Kullanıcı başarıyla güncellendi")
@@ -114,11 +114,11 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {
-		return errorx.ErrInvalidRequest
+		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
 	if err = h.service.Delete(c.Context(), id); err != nil {
-		return errorx.WithDetails(errorx.ErrInternal, err.Error())
+		return errorx.WrapErr(errorx.ErrInternal, err)
 	}
 	return response.Success(c, nil, "Kullanıcı başarıyla silindi")
 }
@@ -127,7 +127,7 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(int64)
 	resp, err := h.service.GetByID(c.Context(), userID)
 	if err != nil {
-		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
+		return errorx.WrapErr(errorx.ErrNotFound, err)
 	}
 
 	user := dto.UserResponse{}.ToResponseModel(*resp)
@@ -141,12 +141,12 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 
 	currentUser, err := h.service.GetByID(c.Context(), userID)
 	if err != nil {
-		return errorx.WithDetails(errorx.ErrNotFound, "Kullanıcı bulunamadı")
+		return errorx.WrapErr(errorx.ErrNotFound, err)
 	}
 
 	var req dto.UpdateUserRequest
 	if err = c.BodyParser(&req); err != nil {
-		return errorx.WithDetails(errorx.ErrInvalidRequest, "Geçersiz giriş formatı")
+		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
 	user := req.ToDBModel(model.User{})
@@ -171,7 +171,7 @@ func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	}
 
 	if err = h.service.Update(c.Context(), userID, user); err != nil {
-		return errorx.WithDetails(errorx.ErrInternal, err.Error())
+		return errorx.WrapErr(errorx.ErrInternal, err)
 	}
 
 	return response.Success(c, nil, "Profil başarıyla güncellendi")
