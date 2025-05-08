@@ -3,16 +3,15 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/services/ApiService'
 import {useUserStore} from "@/store/user";
-import {emailRule} from "@/utils/validation";
-import {errorPopup, resetPasswordPopup, successPopup} from "@/utils/popup";
 
-const resetToken = ref('')
 const router = useRouter()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
 const rememberMe = ref(false)
+import {emailRule} from "@/utils/validation";
+import {errorPopup, successPopup} from "@/utils/popup";
 
 const handleLogin = async () => {
   try {
@@ -43,52 +42,24 @@ const handleLogin = async () => {
   }
 }
 
+const handleForgotPassword = async () => {
+  if (emailRule(email.value) !== true) {
+    await errorPopup('Hata!','Lütfen geçerli bir e-posta adresi girin.')
+    return
+  }  try {
+    await authService.forgotPassword({email: email.value})
+    await successPopup('İsteğiniz Başarılı!', 'E-posta adresinize şifre sıfırlama bağlantısı gönderildi.')
+  } catch (err: any) {
+    await errorPopup('Hata!', 'Şifre sıfırlama isteği gönderilirken bir hata oluştu.')
+  }
+}
+
 // Remember me özelliği için email'i yükle
 const loadRememberedEmail = () => {
   const rememberedEmail = localStorage.getItem('remembered_email')
   if (rememberedEmail) {
     email.value = rememberedEmail
     rememberMe.value = true
-  }
-}
-
-const submitForgotPassword = async () => {
-  if (emailRule(email.value) !== true) {
-    await errorPopup('Hata!','Lütfen geçerli bir e-posta adresi girin.')
-    return
-  }
-
-  loading.value = true
-  try {
-    const res = await authService.forgotPassword({ email: email.value })
-    resetToken.value = res.data?.data || ''
-
-    const result = await resetPasswordPopup(
-      'Yeni Şifre Belirle',
-      'Yeni şifrenizi girin',
-      'Yeni şifrenizi tekrar girin'
-    )
-
-    if (!result) return
-
-    const { input1: newPassword, input2: newPasswordConfirm } = result
-
-    if (newPassword !== newPasswordConfirm) {
-      await errorPopup('Hata!','Şifreler eşleşmiyor!')
-      return
-    }
-
-    await authService.resetPassword({
-      new_password: newPassword,
-      token: resetToken.value,
-    })
-
-    await successPopup('Başarılı!', 'Şifreniz başarıyla değiştirildi!', 'success')
-
-  } catch (err: any) {
-    alert(err.response?.data?.message || 'Lütfen geçerli emailinizi giriniz!')
-  } finally {
-    loading.value = false
   }
 }
 
@@ -150,9 +121,8 @@ loadRememberedEmail()
               />
 
               <VBtn
-                class="text-primary ms-2 mb-1"
-                variant="text"
-                @click="submitForgotPassword"
+                class="ms-2 mb-1"
+                @click="handleForgotPassword"
               >
                 Şifremi unuttum
               </VBtn>

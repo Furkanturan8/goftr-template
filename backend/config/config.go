@@ -137,10 +137,10 @@ func LoadConfig() (*Config, error) {
 			},
 		},
 		MailConfig: MailConfig{
-			SMTPHost:     getEnv("MAIL_SMTP_HOST", "smtp.example.com"),
-			SMTPPort:     getEnv("MAIL_SMTP_PORT", "587"),
-			SMTPPassword: getEnv("MAIL_SMTP_PASSWORD", ""),
-			FromEmail:    getEnv("MAIL_FROM_EMAIL", ""),
+			SMTPHost:     getEnv("SMTP_HOST", "smtp.example.com"),
+			SMTPPort:     getEnv("SMTP_PORT", "587"),
+			SMTPPassword: getEnv("SMTP_PASSWORD", ""),
+			FromEmail:    getEnv("SMTP_FROM_EMAIL", ""),
 		},
 	}
 

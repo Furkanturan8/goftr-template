@@ -1,3 +1,5 @@
+import {NavigationGuardNext, RouteLocationNormalized} from "vue-router";
+
 export const routes = [
   { path: '/', redirect: '/dashboard' },
   {
@@ -31,9 +33,28 @@ export const routes = [
         component: () => import('@/pages/register.vue'),
       },
       {
+        path: 'reset-password',
+        component: () => import('@/pages/reset-password.vue'),
+        beforeEnter: (
+          to: RouteLocationNormalized,
+          from: RouteLocationNormalized,
+          next: NavigationGuardNext
+        ) => {
+          const token = to.query.token
+          if (!token) {
+            next('/login')
+          } else {
+            next()
+          }
+        },
+      },
+      {
         path: '/:pathMatch(.*)*',
         component: () => import('@/pages/[...error].vue'),
       },
     ],
   },
 ]
+
+// note: when you wanna add a new public page, you should also add that page name to this array
+// const publicPages = ['/login', '/register', '/reset-password'] // public sayfalar

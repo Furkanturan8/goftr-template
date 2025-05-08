@@ -12,7 +12,7 @@ const router = createRouter({
 // kullanıcı giriş yapmadıysa ve başka yere istek atıyorsa login sayfasına yönlendir
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
-  const publicPages = ['/login', '/register']
+  const publicPages = ['/login', '/register', '/reset-password'] // public sayfalar
   const privatePages = ['/users']
   const isPrivatePage = privatePages.some(path => to.path.startsWith(path))
   const authRequired = !publicPages.includes(to.path)

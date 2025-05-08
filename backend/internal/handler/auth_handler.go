@@ -145,18 +145,15 @@ func (h *AuthHandler) ForgotPassword(c *fiber.Ctx) error {
 		return errorx.WrapErr(errorx.ErrInvalidRequest, err)
 	}
 
-	// TODO: Burada emaile doğrulama kodu gönderilecek password reset için (add: pkg-> email-service)
-
 	// Email içeriği oluştur
-	// todo refactor!
-	resetURL := fmt.Sprintf("https://yourfrontend.com/reset-password?token=%s", resetToken)
+	resetURL := fmt.Sprintf("http://localhost:5173/reset-password?token=%s", resetToken)
 	emailBody := fmt.Sprintf("Click the following link to reset your password:\n\n%s", resetURL)
 
 	if err = h.emailPkg.Send(req.Email, "Password Reset Request", emailBody); err != nil {
 		return errorx.WrapErr(errorx.ErrInternal, err)
 	}
 
-	return response.Success(c, resetToken, "Password reset instructions have been sent to your email")
+	return response.Success(c, "Password reset instructions have been sent to your email")
 }
 
 func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
