@@ -6,6 +6,7 @@ import (
 	"github.com/Furkanturan8/goftr-template/internal/middleware"
 	"github.com/Furkanturan8/goftr-template/internal/repository"
 	"github.com/Furkanturan8/goftr-template/internal/service"
+	"github.com/Furkanturan8/goftr-template/pkg/email"
 	"github.com/Furkanturan8/goftr-template/pkg/monitoring"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -72,6 +73,14 @@ func (r *Router) SetupRoutes() {
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
 
+	// Dış paketler emailPkg
+	emailPkg := email.NewEmail(
+		r.cfg.MailConfig.FromEmail,
+		r.cfg.MailConfig.SMTPPassword,
+		r.cfg.MailConfig.SMTPHost,
+		r.cfg.MailConfig.SMTPPort,
+	)
+
 	// Repository'ler
 	userRepo := repository.NewUserRepository(r.db)
 	authRepo := repository.NewAuthRepository(r.db)
@@ -81,7 +90,7 @@ func (r *Router) SetupRoutes() {
 	userService := service.NewUserService(userRepo)
 
 	// Handler'lar
-	authHandler := handler.NewAuthHandler(authService)
+	authHandler := handler.NewAuthHandler(authService, emailPkg)
 	userHandler := handler.NewUserHandler(userService)
 
 	// Auth routes
