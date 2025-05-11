@@ -22,6 +22,7 @@ Bu proje, Go dilinde Clean Architecture prensiplerine uygun olarak geliştirilmi
 │   └── router/             # Router yapılandırmaları
 ├── pkg/
 │   ├── cache/              # Redis cache işlemleri
+│   ├── email/              # Mail gönderme işlemi
 │   ├── errorx/             # Hata yönetimi
 │   ├── jwt/                # JWT işlemleri
 │   ├── logger/             # Loglama işlemleri
